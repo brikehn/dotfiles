@@ -1,0 +1,114 @@
+#import:
+#  - /path/to/alacritty.yml
+
+window:
+  padding:
+    x: 12
+    y: 12
+
+  decorations: full
+
+  startup_mode: Windowed
+
+font:
+  normal:
+    family: 'JetBrainsMono Nerd Font Mono'
+    style: Regular
+
+  bold:
+    family: 'JetBrainsMono Nerd Font Mono'
+    style: Bold
+
+  italic:
+    family: 'JetBrainsMono Nerd Font Mono'
+    style: Italic
+
+  bold_italic:
+    family: 'JetBrainsMono Nerd Font Mono'
+    style: BoldItalic
+
+  size: 18.0
+
+# GitHub colorscheme
+# colors:
+#   # Default colors
+#   primary:
+#     background: '0x0d1117'
+#     foreground: '0xb3b1ad'
+#
+#   # Normal colors
+#   normal:
+#     black:   '0x484f58'
+#     red:     '0xff7b72'
+#     green:   '0x3fb950'
+#     yellow:  '0xd29922'
+#     blue:    '0x58a6ff'
+#     magenta: '0xbc8cff'
+#     cyan:    '0x39c5cf'
+#     white:   '0xb3b1ad'
+#
+#   # Bright colors
+#   bright:
+#     black:   '0x6e7681'
+#     red:     '0xffa198'
+#     green:   '0x56d364'
+#     yellow:  '0xe3b341'
+#     blue:    '0x79c0ff'
+#     magenta: '0xd2a8ff'
+#     cyan:    '0x39c5cf'
+#     white:   '0xb3b1ad'
+#
+#   indexed_colors:
+#     - { index: 16, color: '0xd18616' }
+#     - { index: 17, color: '0xffa198' }
+
+# TokyoNight colorscheme
+colors:
+  # Default colors
+  primary:
+    background: '0x1a1b26'
+    foreground: '0xc0caf5'
+
+  # Normal colors
+  normal:
+    black: '0x15161E'
+    red: '0xf7768e'
+    green: '0x9ece6a'
+    yellow: '0xe0af68'
+    blue: '0x7aa2f7'
+    magenta: '0xbb9af7'
+    cyan: '0x7dcfff'
+    white: '0xa9b1d6'
+
+  # Bright colors
+  bright:
+    black: '0x414868'
+    red: '0xf7768e'
+    green: '0x9ece6a'
+    yellow: '0xe0af68'
+    blue: '0x7aa2f7'
+    magenta: '0xbb9af7'
+    cyan: '0x7dcfff'
+    white: '0xc0caf5'
+
+  indexed_colors:
+    - { index: 16, color: '0xff9e64' }
+    - { index: 17, color: '0xdb4b4b' }
+
+selection:
+  save_to_clipboard: true
+
+cursor:
+  style:
+    shape: Block
+    blinking: On
+  unfocused_hollow: true
+
+live_config_reload: true
+
+shell:
+  program: /bin/zsh
+  args:
+    - --login
+
+working_directory: ~/

@@ -1,0 +1,6 @@
+require("core.utils")
+require("modules")
+require("core.options")
+require("core.mappings")
+require("core.autocmd")
+vim.cmd("colorscheme tokyonight")

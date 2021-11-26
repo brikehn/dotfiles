@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# Function to source files if they exist
+function zsh_add_file() {
+    	[ -f "${ZDOTDIR}/${1}" ] && source "${ZDOTDIR}/${1}"
+}
+
+function zsh_add_plugin() {
+    OS=$(uname -s)
+    case "${OS}" in
+        "Linux")
+        DISTRO=$(sed -n 's/^NAME=\(.*\)/\1/p' </etc/os-release)
+        case "${DISTRO}" in
+            *Arch*) dir="/usr/share/zsh/plugins" ;;
+        esac
+        ;;
+    "Darwin") 
+        dir="$(brew --prefix)/share"
+        ;;
+    esac
+	([ -f "${dir}/${1}/${1}.zsh" ] && source "${dir}/${1}/${1}.zsh") ||
+	[ -f "${dir}/${1}/${1}.plugin.zsh" ] && source "${dir}/${1}/${1}.zsh"
+}

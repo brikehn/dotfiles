@@ -1,0 +1,23 @@
+[cmd_duration]
+format = "[ $duration]($style) "
+
+[directory]
+read_only = " "
+
+[directory.substitutions]
+# "~/projects" = "projects"
+
+[jobs]
+symbol = ""
+
+[memory_usage]
+symbol = " "
+
+[package]
+symbol = " "
+
+[python]
+symbol = " "
+
+[ruby]
+symbol = " "
