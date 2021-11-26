@@ -27,7 +27,6 @@ source "${ZDOTDIR}/zsh-functions"
 # Source some files
 zsh_add_file "zsh-aliases"
 zsh_add_file "zsh-exports"
-zsh_add_file "zsh-vim-mode"
 
 # Plugins
 zsh_add_plugin "zsh-completions"
@@ -43,7 +42,6 @@ bindkey "^ " autosuggest-accept
 bindkey "^\n" autosuggest-execute
 bindkey "^[[Z" reverse-menu-complete
 
-bindkey -v
 export KEYTIMEOUT=1
 
 # Use vim keys in tab complete menu:
