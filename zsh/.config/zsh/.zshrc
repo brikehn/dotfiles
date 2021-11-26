@@ -36,12 +36,15 @@ zsh_add_plugin "zsh-syntax-highlighting"
 # Keybinds
 bindkey "^p" up-line-or-beginning-search # Up
 bindkey "^n" down-line-or-beginning-search # Down
+bindkey "^k" up-line-or-beginning-search # Up
+bindkey "^j" down-line-or-beginning-search # Down
 bindkey -r "^u"
 bindkey -r "^d"
 bindkey "^ " autosuggest-accept
 bindkey "^\n" autosuggest-execute
 bindkey "^[[Z" reverse-menu-complete
 
+bindkey -v
 export KEYTIMEOUT=1
 
 # Use vim keys in tab complete menu:
