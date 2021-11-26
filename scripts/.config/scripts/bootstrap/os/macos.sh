@@ -1,16 +1,12 @@
 #!/bin/zsh
 
 ### VARIABLES & CONSTANTS ###
-OS=$(uname -s)
 USER=$(id -u -n)
 DOTFILES_REPO="https://github.com/brikehn/dotfiles"
 DOTFILES=${HOME}/.dotfiles
 
 # Colors
 BLUE="$(tput setaf 4)"
-YELLOW="$(tput setaf 3)"
-GREEN="$(tput setaf 2)"
-RED="$(tput setaf 1)"
 NONE="$(tput sgr0)"
 
 # Set XDG directories.
@@ -18,21 +14,10 @@ export XDG_CONFIG_HOME="${HOME}/.config"
 export XDG_CACHE_HOME="${HOME}/.cache"
 export XDG_DATA_HOME="${HOME}/.local/share"
 
-# Set Zsh configuration directory.
-export ZDOTDIR="${HOME}/.config/zsh"
-
 ### FUNCTIONS ###
 
 print_msg() {
-  printf "${GREEN}=>${NONE} %s\n" "${@}" >&1
-}
-
-print_warn() {
-  printf "${YELLOW}=>${NONE} %s\n" "${@}" >&1
-}
-
-print_error() {
-  printf "${RED}=> ERROR:${NONE} %s\n" "${@}" >&2
+  printf "${BLUE}::${NONE} %s\n" "${@}" >&1
 }
 
 install_homebrew() {
@@ -48,6 +33,7 @@ packages=(
   "zsh-syntax-highlighting"
   "zsh-autosuggestions"
   "starship"
+  "stow"
   "tmux"
   "neovim"
   "node"
@@ -55,18 +41,8 @@ packages=(
   "unzip"
   "ripgrep"
   "fzy"
-  "go"
-  "shfmt"
-  "shellcheck"
-  "cmake"
-  "luarocks"
   "alacritty"
   "gnupg"
-  "ncurses"
-  "flake8"
-  "black"
-  "yamllint"
-  "stylua"
 )
 
 install_packages() {
@@ -75,8 +51,9 @@ install_packages() {
 }
 
 install_dotfiles() {
+  rm -rf "${DOTFILES}"
   print_msg "Installing dotfiles..."
-  git clone ${DOTFILES_REPO} ${DOTFILES}
+  git clone "${DOTFILES_REPO}" "${DOTFILES}"
 }
 
 configs=(
@@ -91,10 +68,10 @@ configs=(
 )
 
 setup_dotfiles() {
-  pushd "${DOTFILES}"
-    stow -D ${configs[@]}
-    stow ${configs[@]}
-  popd
+  print_msg "Setting up dotfiles..."
+  cd "${DOTFILES}"
+  stow -D "${configs[@]}"
+  stow "${configs[@]}"
 }
 
 setup_zsh() {
@@ -132,4 +109,4 @@ setup_dotfiles
 setup_zsh
 setup_neovim
 fix_tmux
-printf "${BLUE}Setup is now complete!${NONE}\n"
+print_msg "Setup complete!"
