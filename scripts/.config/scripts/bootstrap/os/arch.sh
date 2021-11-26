@@ -37,12 +37,12 @@ setup_pacman() {
 }
 
 packages=(
-  "git"
   "zsh"
   "zsh-completions"
   "zsh-syntax-highlighting"
   "zsh-autosuggestions"
   "starship"
+  "stow"
   "tmux"
   "neovim"
   "nodejs"
@@ -67,7 +67,6 @@ packages=(
 install_packages() {
   print_msg "[#####...............] [ 25%]"
   sudo pacman -S --needed --noconfirm "${packages[@]}"
-
 }
 
 install_aur_helper() {
@@ -87,12 +86,6 @@ aur_packages=(
 install_aur_packages() {
   print_msg "[###########.........] [ 55%]"
   yay -S --needed --noconfirm "${aur_packages[@]}"
-}
-
-install_dotfiles() {
-  print_msg "[############........] [ 60%]"
-  rm -rf "${DOTFILES}"
-  git clone "${DOTFILES_REPO}" "${DOTFILES}"
 }
 
 configs=(
@@ -141,7 +134,6 @@ setup_pacman
 install_packages
 install_aur_helper
 install_aur_packages
-install_dotfiles
 setup_dotfiles
 setup_zsh
 setup_neovim
