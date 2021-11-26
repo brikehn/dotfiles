@@ -1,0 +1,6 @@
+#!/bin/sh
+HISTFILE="${XDG_CACHE_HOME}/zsh/history"
+HISTSIZE=100000
+SAVEHIST=100000
+
+eval "$(starship init zsh)"

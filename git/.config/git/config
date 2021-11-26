@@ -1,0 +1,15 @@
+# This is Git's per-user configuration file.
+[user]
+    name = brikehn
+    email = thebriankwon@gmail.com
+[includeIf "gitdir/i:~/work/"]
+    path = ~/.config/git/work
+[alias]
+    lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative
+    st = status --short --branch -M
+[pull]
+    rebase = true
+[core]
+    editor = nvim
+[init]
+    defaultBranch = main
