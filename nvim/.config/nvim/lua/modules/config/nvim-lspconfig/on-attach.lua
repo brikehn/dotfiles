@@ -12,9 +12,9 @@ return function(client)
   lua_nmap("<space>ca", "vim.lsp.buf.code_action()")
   lua_nmap("<space>kh", "vim.lsp.buf.signature_help()")
   lua_nmap("<space>rn", "vim.lsp.buf.rename()")
-  lua_nmap("<space>e", "vim.lsp.diagnostic.show_line_diagnostics()")
-  lua_nmap("[e", "vim.lsp.diagnostic.goto_prev()")
-  lua_nmap("]e", "vim.lsp.diagnostic.goto_next()")
+  lua_nmap("<space>e", "vim.diagnostic.open_float()")
+  lua_nmap("[e", "vim.diagnostic.goto_prev()")
+  lua_nmap("]e", "vim.diagnostic.goto_next()")
 
   local lsp_signature = safe_require("lsp_signature")
   if lsp_signature then

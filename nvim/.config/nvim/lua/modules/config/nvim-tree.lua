@@ -1,9 +1,7 @@
 local g = vim.g
-g.nvim_tree_gitignore = 1
 g.nvim_tree_indent_markers = 1
 g.nvim_tree_git_hl = 1
 g.nvim_tree_root_folder_modifier = ":t" -- see ":h filename-modifiers"
-g.nvim_tree_disable_window_picker = 1
 g.nvim_tree_respect_buf_cwd = 1
 g.nvim_tree_create_in_closed_folder = 1
 g.nvim_tree_refresh_wait = 500
@@ -54,5 +52,15 @@ return function()
       auto_resize = true,
       width = 40,
     },
+    git = {
+      ignore = true,
+    },
+    actions = {
+      open_file = {
+        window_picker = {
+          enable = 1
+        }
+      }
+    }
   })
 end
