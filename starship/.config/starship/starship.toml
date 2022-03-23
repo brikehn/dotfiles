@@ -20,4 +20,4 @@ symbol = " "
 symbol = " "
 
 [ruby]
-symbol = " "
+disabled = true

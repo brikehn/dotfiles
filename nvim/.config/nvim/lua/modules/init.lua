@@ -79,10 +79,6 @@ return require("packer").startup({
       "nvim-lualine/lualine.nvim",
       config = conf("lualine"),
     })
-    -- use({
-    --   "NTBBloodbath/galaxyline.nvim",
-    --   config = conf("galaxyline"),
-    -- })
     use({ -- Debugging
       "mfussenegger/nvim-dap",
       requires = {

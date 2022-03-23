@@ -11,5 +11,5 @@ alias fgrep='fgrep --color=auto'
 alias cp="cp -v"
 alias mv="mv -v"
 alias rm="rm -v"
-alias ls="ls -FG"
+alias ls="ls -F --color=auto"
 alias mkdir="mkdir -p"

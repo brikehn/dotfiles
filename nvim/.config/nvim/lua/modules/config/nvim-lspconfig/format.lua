@@ -1,8 +1,6 @@
-local prettier = { formatCommand = "prettierd ${INPUT}", formatStdin = true }
+local prettier = { formatCommand = "prettier --stdin-filepath ${INPUT}", formatStdin = true }
 
 local eslint = {
-  formatCommand = "eslint_d --fix-to-stdout --stdin --stdin-filename=${INPUT}",
-  formatStdin = true,
   lintCommand = "eslint_d -f unix --stdin --stdin-filename ${INPUT}",
   lintStdin = true,
   lintFormats = { "%f:%l:%c: %m" },
@@ -28,6 +26,8 @@ local flake8 = {
 
 local yamllint = { lintCommand = "yamllint -f parsable -", lintStdin = true }
 
+local rustfmt = { formatCommand = "rustfmt", formatStdin = true }
+
 return {
   lua = { stylua },
   sh = { shfmt, shellcheck },
@@ -43,4 +43,5 @@ return {
   graphql = { prettier },
   python = { black, flake8 },
   yaml = { prettier, yamllint },
+  rust = { rustfmt },
 }

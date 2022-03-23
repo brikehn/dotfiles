@@ -50,7 +50,7 @@ return function()
       lualine_x = {
         {
           "diagnostics",
-          sources = { "nvim_lsp" },
+          sources = { "nvim_diagnostic" },
           symbols = { error = "E:", warn = "W:", info = "I:", hint = "H:" },
         },
       },
