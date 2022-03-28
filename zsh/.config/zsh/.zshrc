@@ -57,6 +57,9 @@ if [ -z "$SSH_AUTH_SOCK" ] ; then
     ssh-add
 fi
 
+export NVM_DIR="$HOME/.config/nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
 path+=("$HOME/.rvm/bin")
 

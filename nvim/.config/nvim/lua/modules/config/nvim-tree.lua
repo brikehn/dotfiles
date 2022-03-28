@@ -58,9 +58,9 @@ return function()
     actions = {
       open_file = {
         window_picker = {
-          enable = 1
-        }
-      }
-    }
+          enable = 1,
+        },
+      },
+    },
   })
 end
