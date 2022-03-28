@@ -8,7 +8,7 @@ return function()
   telescope.setup({
     defaults = {
       layout_config = { horizontal = { preview_width = 0.5 } },
-      file_ignore_patterns = { "node_modules/.*" },
+      file_ignore_patterns = { "node_modules" },
       color_devicons = true,
       mappings = {
         i = {
