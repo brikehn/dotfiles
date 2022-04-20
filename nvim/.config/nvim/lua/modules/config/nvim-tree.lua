@@ -1,5 +1,4 @@
 local g = vim.g
-g.nvim_tree_indent_markers = 1
 g.nvim_tree_git_hl = 1
 g.nvim_tree_root_folder_modifier = ":t" -- see ":h filename-modifiers"
 g.nvim_tree_respect_buf_cwd = 1
@@ -36,7 +35,6 @@ return function()
   end
 
   nvim_tree.setup({
-    auto_close = true,
     hijack_cursor = true,
     update_cwd = true,
     update_to_buf_dir = {
@@ -58,8 +56,13 @@ return function()
     actions = {
       open_file = {
         window_picker = {
-          enable = 1,
+          enable = false,
         },
+      },
+    },
+    renderer = {
+      indent_markers = {
+        enable = false,
       },
     },
   })
