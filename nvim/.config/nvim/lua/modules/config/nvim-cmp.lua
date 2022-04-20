@@ -23,7 +23,7 @@ return function()
         select = true,
       }),
     },
-    experimental = { native_menu = false, ghost_text = true },
+    experimental = { ghost_text = true },
     sources = {
       { name = "nvim_lua" },
       { name = "nvim_lsp" },
@@ -33,6 +33,19 @@ return function()
       { name = "spell", keyword_length = 5 },
       { name = "buffer", keyword_length = 5 },
       { name = "calc" },
+    },
+    formatting = {
+      format = function(entry, vim_item)
+        -- Source
+        vim_item.menu = ({
+          buffer = "[Buffer]",
+          nvim_lsp = "[LSP]",
+          luasnip = "[LuaSnip]",
+          nvim_lua = "[Lua]",
+          latex_symbols = "[LaTeX]",
+        })[entry.source.name]
+        return vim_item
+      end,
     },
   })
 

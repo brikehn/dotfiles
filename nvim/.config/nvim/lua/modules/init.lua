@@ -115,6 +115,9 @@ return require("packer").startup({
     use({ -- Extended language support
       "jxnblk/vim-mdx-js",
     })
+    use({
+      "tpope/vim-rails",
+    })
 
     -- Automatically set up your configuration after cloning packer.nvim
     -- Put this at the end after all plugins
