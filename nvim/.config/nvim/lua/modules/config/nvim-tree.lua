@@ -36,25 +36,27 @@ return function()
 
   nvim_tree.setup({
     hijack_cursor = true,
-    update_cwd = true,
+    update_cwd = false,
     update_to_buf_dir = {
       enable = true,
       auto_open = true,
     },
     update_focused_file = {
       enable = true,
-      update_cwd = true,
-      ignore_list = {},
+      update_cwd = false,
     },
     view = {
-      auto_resize = true,
       width = 40,
     },
     git = {
       ignore = true,
     },
     actions = {
+      change_dir = {
+        global = true,
+      }
       open_file = {
+        quit_on_open = true,
         window_picker = {
           enable = false,
         },
@@ -62,8 +64,12 @@ return function()
     },
     renderer = {
       indent_markers = {
-        enable = false,
+        enable = true,
       },
+    },
+    diagnostics = {
+      enable = true,
+      show_on_dirs = true,
     },
   })
 end
