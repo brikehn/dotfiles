@@ -11,5 +11,9 @@ alias fgrep='fgrep --color=auto'
 alias cp="cp -v"
 alias mv="mv -v"
 alias rm="rm -v"
-alias ls="ls -F --color=auto"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  alias ls="ls -FG"
+else
+  alias ls="ls -F --color=auto"
+fi
 alias mkdir="mkdir -p"
