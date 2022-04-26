@@ -11,11 +11,6 @@ local stylua = { formatCommand = "stylua -s --indent-type='Spaces' --indent-widt
 
 local shfmt = { formatCommand = "shfmt -i 2 -ci -s -bn", formatStdin = true }
 
-local shellcheck = {
-  lintCommand = "shellcheck -f gcc -x",
-  lintFormats = { "%f:%l:%c: %trror: %m", "%f:%l:%c: %tote: %m" },
-}
-
 local black = { formatCommand = "black --quiet -", formatStdin = true }
 
 local flake8 = {
@@ -24,13 +19,11 @@ local flake8 = {
   lintFormats = { "%f:%l:%c: %m" },
 }
 
-local yamllint = { lintCommand = "yamllint -f parsable -", lintStdin = true }
-
 local rustfmt = { formatCommand = "rustfmt", formatStdin = true }
 
 return {
   lua = { stylua },
-  sh = { shfmt, shellcheck },
+  sh = { shfmt },
   typescript = { prettier, eslint },
   javascript = { prettier, eslint },
   typescriptreact = { prettier, eslint },
@@ -42,6 +35,6 @@ return {
   markdown = { prettier },
   graphql = { prettier },
   python = { black, flake8 },
-  yaml = { prettier, yamllint },
+  yaml = { prettier },
   rust = { rustfmt },
 }
