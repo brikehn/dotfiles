@@ -41,7 +41,6 @@ packages=(
   "unzip"
   "ripgrep"
   "fzy"
-  "alacritty"
   "gnupg"
 )
 
@@ -57,11 +56,8 @@ install_dotfiles() {
 }
 
 configs=(
-  "alacritty"
-  "fonts"
   "git"
   "nvim"
-  "scripts"
   "starship"
   "tmux"
   "zsh"
