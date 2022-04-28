@@ -2,7 +2,7 @@
 
 ### VARIABLES & CONSTANTS ###
 USER=$(id -u -n)
-DOTFILES_REPO="https://github.com/brikehn/dotfiles"
+DOTFILES_REPO="git@github.com:brikehn/dotfiles"
 DOTFILES=${HOME}/.dotfiles
 
 # Colors
