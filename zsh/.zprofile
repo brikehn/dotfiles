@@ -31,3 +31,5 @@ export STARSHIP_CACHE=~/.cache/starship
 if [ -f "${XDG_CONFIG_HOME}/npm/token" ]; then
   source "${XDG_CONFIG_HOME}/npm/token"
 fi
+
+eval "$(/opt/homebrew/bin/brew shellenv)"
