@@ -1,5 +1,32 @@
 # Dotfiles
 
+## Tools I use:
+
+### Package manager
+* brew (macOS)
+
+### Utilities
+* stow
+* unzip
+* ripgrep
+* fzy
+* gnupg
+
+### Terminal/Shell
+* zsh
+    * zsh-syntax-highlighting
+    * zsh-completions
+    * zsh-autosuggestions
+* starship
+
+### Dev Toolbox
+* git
+* neovim
+* node
+* tmux
+* yarn
+* docker
+
 ## Manual Installation
 
 ```sh
@@ -14,10 +41,4 @@ stow <dir_name>
 
 # Delete config
 stow -D <dir_name>
-```
-
-## Bootstrap
-
-```sh
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/brikehn/dotfiles/main/scripts/.config/scripts/bootstrap/install.sh)"
 ```
