@@ -4,7 +4,5 @@ return function()
     return
   end
 
-  gitsigns.setup({
-    yadm = { enable = true },
-  })
+  gitsigns.setup({})
 end
