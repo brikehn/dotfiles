@@ -37,4 +37,5 @@ return {
   python = { black, flake8 },
   yaml = { prettier },
   rust = { rustfmt },
+  prisma = { prettier }
 }
