@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/zsh
 
 # Default programs:
 export EDITOR="nvim"

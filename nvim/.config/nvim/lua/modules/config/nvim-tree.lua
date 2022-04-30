@@ -37,7 +37,7 @@ return function()
   nvim_tree.setup({
     hijack_cursor = true,
     update_cwd = true,
-    update_to_buf_dir = {
+    hijack_directories = {
       enable = true,
       auto_open = true,
     },
