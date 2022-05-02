@@ -21,6 +21,8 @@ local flake8 = {
 
 local rustfmt = { formatCommand = "rustfmt", formatStdin = true }
 
+local gofmt = { formatCommand = "gofmt", formatStdin = true }
+
 return {
   lua = { stylua },
   sh = { shfmt },
@@ -38,4 +40,5 @@ return {
   yaml = { prettier },
   rust = { rustfmt },
   prisma = { prettier }
+  go = { gofmt },
 }
