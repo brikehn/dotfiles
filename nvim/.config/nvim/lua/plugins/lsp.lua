@@ -21,6 +21,8 @@ local flake8 = {
 
 local rustfmt = { formatCommand = 'rustfmt', formatStdin = true }
 
+local rubocop = { formatCommand = 'bundle exec rubocop -A -f quiet --stderr -s ${INPUT}', formatStdin = true }
+
 local languages = {
   lua = { stylua },
   sh = { shfmt },
@@ -37,7 +39,8 @@ local languages = {
   python = { black, flake8 },
   yaml = { prettier },
   rust = { rustfmt },
-  prisma = { prettier }
+  prisma = { prettier },
+  ruby = { rubocop }
 }
 
 local runtime_path = vim.split(package.path, ';')
@@ -55,9 +58,10 @@ require('nvim-lsp-setup').setup({
   mappings = {},
   on_attach = function(client, bufnr)
     require('lsp-format').on_attach(client)
-    require('nvim-lsp-setup.utils').disable_formatting(client)
     if client.name == 'efm' then
       require('nvim-lsp-setup.utils').format_on_save(client)
+    else
+      require('nvim-lsp-setup.utils').disable_formatting(client)
     end
   end,
   capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities()),
