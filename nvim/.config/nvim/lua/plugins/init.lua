@@ -103,7 +103,6 @@ require('packer').startup(function(use)
     end
   }
   use 'tpope/vim-fugitive'
-  --   use("junegunn/gv.vim")
   --   use({
   --     "ThePrimeagen/git-worktree.nvim",
   --     config = conf("git-worktree"),
