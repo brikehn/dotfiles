@@ -74,3 +74,6 @@ export LC_CTYPE=en_US.UTF-8
 export PATH="$PATH:$HOME/.rvm/bin"
 
 . "$HOME/.cargo/env"
+
+# bun completions
+[ -s "/Users/thebriankwon/.bun/_bun" ] && source "/Users/thebriankwon/.bun/_bun"

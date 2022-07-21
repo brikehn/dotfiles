@@ -3,4 +3,7 @@ HISTFILE="${XDG_CACHE_HOME}/zsh/history"
 HISTSIZE=100000
 SAVEHIST=100000
 
+export BUN_INSTALL="/Users/thebriankwon/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
 eval "$(starship init zsh)"
