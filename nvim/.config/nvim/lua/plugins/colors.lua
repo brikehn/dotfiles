@@ -10,7 +10,7 @@
 -- vim.g.tokyonight_dark_float = true -- use darker floats
 
 vim.g.gruvbox_material_foreground = 'material' -- 'material' | 'mix' | 'original'
-vim.g.gruvbox_material_background = 'medium' -- 'soft' | 'medium' | 'hard'
+vim.g.gruvbox_material_background = 'soft' -- 'soft' | 'medium' | 'hard'
 vim.g.gruvbox_material_enable_bold = 1
 vim.g.gruvbox_material_enable_italic = 1
 vim.g.gruvbox_material_diagnostic_line_highlight = 1
@@ -18,5 +18,4 @@ vim.g.gruvbox_material_diagnostic_virtual_text = 'colored'
 
 -- require('rose-pine').setup({
 --   dark_variant = 'main', -- 'main' | 'moon'
---   dim_nc_background = true,
 -- })

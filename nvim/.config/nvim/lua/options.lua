@@ -18,7 +18,7 @@ o.signcolumn = 'yes'; -- show the sign column
 o.colorcolumn = '80'; -- use for max line length guide
 -- o.cmdheight = 2; -- more space for displaying messages
 o.shortmess:append('c'); -- disable some stuff on shortmess
-o.cursorline = true; -- highlights current line
+o.cursorline = false; -- highlights current line
 o.laststatus = 2; -- always show statusline
 o.list = true;
 o.listchars = { eol = '↲', nbsp = '␣', trail = '·', tab = '│·' };
