@@ -134,7 +134,7 @@ require('packer').startup(function(use)
   --     "jxnblk/vim-mdx-js",
   --   })
   use({ -- Rails
-    "tpope/vim-rails",
+    'tpope/vim-rails',
   })
   if packer_bootstrap then
     require('packer').sync()
