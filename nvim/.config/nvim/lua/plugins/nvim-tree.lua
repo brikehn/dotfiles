@@ -4,7 +4,7 @@ require('nvim-tree').setup({
   hijack_cursor = true,
   update_cwd = true,
   sort_by = 'extension',
-  respect_buf_cwd = false,
+  respect_buf_cwd = true,
   reload_on_bufenter = true,
   hijack_directories = {
     enable = true,
@@ -76,6 +76,6 @@ require('nvim-tree').setup({
     show_on_dirs = true,
   },
   filesystem_watchers = {
-    enable= true
+    enable = true
   }
 })
