@@ -19,7 +19,7 @@ require('nvim-treesitter.configs').setup({
       node_decremental = 'grm',
     },
   },
-  indent = { enable = true },
+  indent = { enable = false },
   autotag = { enable = true, filetypes = { 'eruby' } },
   autopairs = { enable = true },
   context_commentstring = { enable = true, enable_autocmd = false },
