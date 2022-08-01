@@ -11,7 +11,7 @@ end
 
 require('lualine').setup({
   options = {
-    theme = 'gruvbox-material', -- 'gruvbox-material' | 'tokyonight' | 'rose-pine'
+    theme = 'rose-pine', -- 'gruvbox-material' | 'tokyonight' | 'rose-pine'
     section_separators = '',
     component_separators = '',
   },
