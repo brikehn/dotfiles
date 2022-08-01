@@ -114,14 +114,14 @@ require('packer').startup(function(use)
     end
   }
   use { -- Colorscheme
-    'sainnhe/gruvbox-material',
+    -- 'sainnhe/gruvbox-material',
     -- 'folke/tokyonight.nvim',
-    -- 'rose-pine/neovim',
+    'rose-pine/neovim',
     config = function()
       require('plugins.colors')
-      -- vim.cmd('colorscheme rose-pine')
+      vim.cmd('colorscheme rose-pine')
       -- vim.cmd('colorscheme tokyonight')
-      vim.cmd('colorscheme gruvbox-material')
+      -- vim.cmd('colorscheme gruvbox-material')
     end
   }
   use { -- Colorizer
