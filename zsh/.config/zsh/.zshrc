@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-# zsh options
+### ZSH
 setopt menucomplete
 setopt auto_cd # No need for 'cd' anymore
 setopt interactive_comments
@@ -9,7 +9,7 @@ zle_highlight=('paste:none')
 
 unsetopt BEEP
 
-# Completions
+### Completions
 autoload -Uz compinit
 zstyle ':completion:*' menu select
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
@@ -21,19 +21,30 @@ autoload -U down-line-or-beginning-search
 zle -N up-line-or-beginning-search
 zle -N down-line-or-beginning-search
 
-# Functions
+### Functions
 source "${ZDOTDIR}/zsh-functions"
 
-# Source some files
-zsh_add_file "zsh-aliases"
-zsh_add_file "zsh-exports"
-
-# Plugins
+### Plugins
 zsh_add_plugin "zsh-completions"
 zsh_add_plugin "zsh-autosuggestions"
 zsh_add_plugin "zsh-syntax-highlighting"
 
-# Keybinds
+
+### Aliases
+alias vim="nvim"
+
+# Colorize grep output (good for log files)
+alias grep='grep --color=auto'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  alias ls="ls -FG"
+else
+  alias ls="ls -F --color=auto"
+fi
+
+### Keybinds
 bindkey -v
 bindkey "^p" up-line-or-beginning-search # Up
 bindkey "^n" down-line-or-beginning-search # Down
