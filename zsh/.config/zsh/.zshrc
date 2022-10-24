@@ -44,6 +44,8 @@ else
   alias ls="ls -F --color=auto"
 fi
 
+alias awsps='export AWS_PROFILE=$( aws configure list-profiles | fzf )'
+
 ### Keybinds
 bindkey -v
 bindkey "^p" up-line-or-beginning-search # Up
