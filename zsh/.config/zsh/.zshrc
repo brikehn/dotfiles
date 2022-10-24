@@ -84,3 +84,5 @@ export PATH
 [ -s "/Users/thebriankwon/.bun/_bun" ] && source "/Users/thebriankwon/.bun/_bun"
 
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+
+eval "$(starship init zsh)"
