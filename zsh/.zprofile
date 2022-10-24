@@ -12,7 +12,7 @@ HISTFILE="${XDG_CACHE_HOME}/zsh/history"
 HISTSIZE=100000
 SAVEHIST=100000
 
-export DOTFILES = "$HOME/.dotfiles"
+export DOTFILES="$HOME/.dotfiles"
 
 # UTF-8 encoding
 export LC_CTYPE=en_US.UTF-8

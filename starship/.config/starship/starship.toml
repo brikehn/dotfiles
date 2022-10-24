@@ -1,2 +1,13 @@
+add_newline = false
+
+[character]
+disabled = true
+
+[line_break]
+disabled = true
+
 [cmd_duration]
 format = "[ $duration]($style) "
+
+[ruby]
+disabled = true
