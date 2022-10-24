@@ -11,7 +11,7 @@ end
 
 require('lualine').setup({
   options = {
-    theme = 'rose-pine', -- 'gruvbox-material' | 'tokyonight' | 'rose-pine'
+    theme = 'rose-pine',
     section_separators = '',
     component_separators = '',
   },
@@ -20,31 +20,22 @@ require('lualine').setup({
     lualine_b = {
       {
         'branch',
-        -- color = { fg = '#ff9e64', bg = '#1f2335' },
       },
     },
     lualine_c = {
       {
         'filename',
-        -- color = { fg = '#a9b1d6', bg = '#1f2335' },
+        path = 1
       },
       {
         'diff',
-        colored = true,
-        diff_color = {
-          -- added = { fg = '#9ece6a' },
-          -- modified = { fg = '#e0af68' },
-          -- removed = { fg = '#f7768e' },
-        },
-        symbols = { added = '+', modified = '~', removed = '-' },
         source = diff_source,
       },
-      -- 'b:gitsigns_status',
     },
     lualine_x = {
       {
         'diagnostics',
-        sources = { 'nvim_diagnostic' },
+        sources = { 'nvim_lsp' },
         symbols = { error = 'E:', warn = 'W:', info = 'I:', hint = 'H:' },
       },
     },

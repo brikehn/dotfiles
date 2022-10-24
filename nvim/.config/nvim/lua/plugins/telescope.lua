@@ -3,7 +3,6 @@ require('telescope').setup({
   defaults = {
     layout_strategy = 'flex',
     layout_config = {
-      flip_columns = 120,
       vertical = {
         preview_cutoff = 20,
         preview_height = 0.7,
@@ -12,38 +11,20 @@ require('telescope').setup({
         preview_cutoff = 80
       }
     },
-    file_ignore_patterns = { 'node_modules' },
+    file_ignore_patterns = { 'node_modules', '.git' },
     color_devicons = true,
     mappings = {
       i = {
-        ['<C-c>'] = actions.close,
         ['<C-j>'] = actions.move_selection_next,
         ['<C-k>'] = actions.move_selection_previous,
         ['<C-q>'] = actions.smart_send_to_qflist + actions.open_qflist,
-        ['<CR>'] = actions.select_default,
-        ['<C-x>'] = actions.select_horizontal,
-        ['<C-v>'] = actions.select_vertical,
-        ['<C-u>'] = actions.preview_scrolling_up,
-        ['<C-d>'] = actions.preview_scrolling_down,
       },
       n = {
-        ['<CR>'] = actions.select_default,
-        ['j'] = actions.move_selection_next,
-        ['k'] = actions.move_selection_previous,
-        ['<C-x>'] = actions.select_horizontal,
-        ['<C-v>'] = actions.select_vertical,
-        ['<C-u>'] = actions.preview_scrolling_up,
-        ['<C-d>'] = actions.preview_scrolling_down,
+        ['<C-c>'] = actions.close,
       },
     },
   },
   pickers = {
-    help_tags = {
-      theme = 'dropdown',
-    },
-    current_buffer_fuzzy_find = {
-      previewer = false,
-    },
     buffers = {
       previewer = false,
       layout_config = {
@@ -51,5 +32,25 @@ require('telescope').setup({
         width = 80,
       },
     },
+    find_files = {
+      hidden = true,
+      no_ignore = true,
+    },
+    git_files = {
+      show_untracked = true,
+    }
   },
 })
+
+require('telescope').load_extension('fzf')
+
+local M = {}
+
+M.search_dotfiles = function()
+  require("telescope.builtin").find_files({
+    prompt_title = "Dotfiles",
+    cwd = vim.env.DOTFILES,
+  })
+end
+
+return M

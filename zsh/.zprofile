@@ -8,6 +8,15 @@ export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_CACHE_HOME="$HOME/.cache"
 
+HISTFILE="${XDG_CACHE_HOME}/zsh/history"
+HISTSIZE=100000
+SAVEHIST=100000
+
+export DOTFILES = "$HOME/.dotfiles"
+
+# UTF-8 encoding
+export LC_CTYPE=en_US.UTF-8
+
 # Zsh
 export ZDOTDIR="${XDG_CONFIG_HOME:-$HOME/.config}/zsh"
 
@@ -32,4 +41,8 @@ if [ -f "${XDG_CONFIG_HOME}/npm/token" ]; then
   source "${XDG_CONFIG_HOME}/npm/token"
 fi
 
+export BUN_INSTALL="/Users/thebriankwon/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
 eval "$(/opt/homebrew/bin/brew shellenv)"
+eval "$(starship init zsh)"

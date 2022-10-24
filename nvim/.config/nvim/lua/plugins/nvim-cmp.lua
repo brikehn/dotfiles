@@ -3,22 +3,21 @@ local lspkind = require('lspkind')
 
 cmp.setup({
   mapping = {
-    ['<C-p>'] = cmp.mapping.select_prev_item(),
     ['<C-n>'] = cmp.mapping.select_next_item(),
+    ['<C-p>'] = cmp.mapping.select_prev_item(),
+    ['<C-u>'] = cmp.mapping.scroll_docs(4),
     ['<C-d>'] = cmp.mapping.scroll_docs(-4),
-    ['<C-f>'] = cmp.mapping.scroll_docs(4),
     ['<C-Space>'] = cmp.mapping.complete(),
-    ['<C-e>'] = cmp.mapping.close(),
-    ['<C-y>'] = cmp.mapping.confirm({
-      behavior = cmp.ConfirmBehavior.Replace,
-      select = true,
-    }),
+    ['<C-e>'] = cmp.mapping.abort(),
+    ['<C-y>'] = cmp.mapping.confirm({ select = true, }),
   },
   experimental = { ghost_text = true },
   sources = {
     { name = 'nvim_lsp' },
     { name = 'nvim_lsp_signature_help' },
     { name = 'luasnip' },
+    { name = 'fuzzy_buffer' },
+    { name = 'fuzzy_path' },
   },
   formatting = {
     format = lspkind.cmp_format({
@@ -43,7 +42,7 @@ cmp.setup({
       return true
     else
       return not context.in_treesitter_capture('comment')
-        and not context.in_syntax_group('Comment')
+          and not context.in_syntax_group('Comment')
     end
   end,
   snippet = {
@@ -56,6 +55,15 @@ cmp.setup({
 cmp.setup.cmdline('/', {
   mapping = cmp.mapping.preset.cmdline(),
   sources = {
-    { name = 'buffer' }
+    { name = 'fuzzy_buffer' }
   }
+})
+
+cmp.setup.cmdline(':', {
+  mapping = cmp.mapping.preset.cmdline(),
+  sources = cmp.config.sources({
+    { name = 'fuzzy_path' }
+  }, {
+    { name = 'cmdline' }
+  })
 })

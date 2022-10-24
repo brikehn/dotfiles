@@ -3,29 +3,33 @@
 ## Tools I use:
 
 ### Package manager
-* brew (macOS)
+
+- brew (macOS)
 
 ### Utilities
-* stow
-* unzip
-* ripgrep
-* fzy
-* gnupg
+
+- stow
+- unzip
+- ripgrep
+- fzy
+- gnupg
 
 ### Terminal/Shell
-* zsh
-    * zsh-syntax-highlighting
-    * zsh-completions
-    * zsh-autosuggestions
-* starship
+
+- zsh
+  - zsh-syntax-highlighting
+  - zsh-completions
+  - zsh-autosuggestions
+- starship
 
 ### Dev Toolbox
-* git
-* neovim
-* node
-* tmux
-* yarn
-* docker
+
+- git
+- neovim
+- node
+- tmux
+- yarn
+- docker
 
 ## Manual Installation
 

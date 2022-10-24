@@ -6,20 +6,24 @@ if fn.empty(fn.glob(install_path)) > 0 then
 end
 
 require('packer').startup(function(use)
+  -- Plugin Manager
   use 'wbthomason/packer.nvim'
-  use { -- LSP
-    'junnplus/nvim-lsp-setup',
+
+  -- LSP
+  use {
+    'junnplus/lsp-setup.nvim',
     requires = {
       'neovim/nvim-lspconfig',
       'williamboman/mason.nvim',
       'williamboman/mason-lspconfig.nvim',
-      'lukas-reineke/lsp-format.nvim'
     },
     config = function()
       require('plugins.lsp')
     end
   }
-  use { -- Treesitter
+
+  -- Treesitter
+  use {
     'nvim-treesitter/nvim-treesitter',
     run = ':TSUpdate',
     config = function()
@@ -31,112 +35,87 @@ require('packer').startup(function(use)
       'JoosepAlviste/nvim-ts-context-commentstring',
     }
   }
-  use { -- Telescope
+
+  -- Telescope
+  use {
     'nvim-telescope/telescope.nvim',
     config = function()
       require('plugins.telescope')
     end,
     requires = {
       'nvim-lua/plenary.nvim',
+      { 'nvim-telescope/telescope-fzf-native.nvim', run = 'make' }
     }
   }
-  use { -- File Explorer
-    'kyazdani42/nvim-tree.lua',
-    requires = {
-      {
-        'kyazdani42/nvim-web-devicons',
-        config = function()
-          require('plugins.nvim-web-devicons')
-        end
-      }
-    },
-    config = function()
-      require('plugins.nvim-tree')
-    end
-  }
-  use { -- Autopairs
+
+  -- Autopairs
+  use {
     'windwp/nvim-autopairs',
     config = function()
       require('plugins.nvim-autopairs')
     end
   }
-  use { -- Comments
-    'numToStr/Comment.nvim',
-    config = function()
-      require('plugins.comment')
-    end
-  }
-  use { -- Completion
+
+  -- Comments
+  use 'tpope/vim-commentary'
+
+  -- Completion
+  use {
     'hrsh7th/nvim-cmp',
     requires = {
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-nvim-lsp-signature-help',
       'hrsh7th/cmp-cmdline',
-      'hrsh7th/cmp-buffer',
       'saadparwaiz1/cmp_luasnip',
       'onsails/lspkind.nvim',
-      'L3MON4D3/LuaSnip'
+      'L3MON4D3/LuaSnip',
+      'tzachar/cmp-fuzzy-path',
+      'tzachar/cmp-fuzzy-buffer',
+      'tzachar/fuzzy.nvim',
     },
     config = function()
       require('plugins.nvim-cmp')
     end
   }
-  use { -- Statusline
+
+  -- Statusline
+  use {
     'nvim-lualine/lualine.nvim',
     config = function()
       require('plugins.lualine')
     end
   }
+
   --   use({ -- Debugging
   --     "mfussenegger/nvim-dap",
   --     requires = {
   --       "rcarriga/nvim-dap-ui",
   --     },
   --   })
-  --   use({ -- Git diff
-  --     "sindrets/diffview.nvim",
-  --     config = conf("diffview"),
-  --   })
-  use { -- Git Gutter
+
+  -- Git
+  use {
+    'tpope/vim-fugitive',
     'lewis6991/gitsigns.nvim',
     config = function()
-      require('plugins.gitsigns')
+      require('plugins.git')
     end
   }
-  use 'tpope/vim-fugitive'
+
   --   use({
   --     "ThePrimeagen/git-worktree.nvim",
   --     config = conf("git-worktree"),
   --   })
-  use { -- Indent guides
-    'lukas-reineke/indent-blankline.nvim',
-    config = function()
-      require('plugins.indent')
-    end
-  }
-  use { -- Colorscheme
-    -- 'sainnhe/gruvbox-material',
-    -- 'folke/tokyonight.nvim',
+
+  -- Colorscheme
+  use {
     'rose-pine/neovim',
+    as = 'rose-pine',
     config = function()
       require('plugins.colors')
-      vim.cmd('colorscheme rose-pine')
-      -- vim.cmd('colorscheme tokyonight')
-      -- vim.cmd('colorscheme gruvbox-material')
     end
   }
-  use { -- Colorizer
-    'norcalli/nvim-colorizer.lua',
-    config = function()
-      require('plugins.nvim-colorizer')
-    end
-  }
-  --   use({ -- Extended language support
-  --     "jxnblk/vim-mdx-js",
-  --   })
-  use({ -- Rails
-    'tpope/vim-rails',
-  })
+
   if packer_bootstrap then
     require('packer').sync()
   end
