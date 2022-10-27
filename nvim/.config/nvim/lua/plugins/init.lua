@@ -2,7 +2,7 @@ local fn = vim.fn
 local install_path = fn.stdpath("data") .. "/site/pack/packer/start/packer.nvim"
 if fn.empty(fn.glob(install_path)) > 0 then
   packer_bootstrap =
-  fn.system({ "git", "clone", "--depth", "1", "https://github.com/wbthomason/packer.nvim", install_path })
+    fn.system({ "git", "clone", "--depth", "1", "https://github.com/wbthomason/packer.nvim", install_path })
 end
 
 require("packer").startup(function(use)
@@ -106,7 +106,9 @@ require("packer").startup(function(use)
   -- Git
   use({
     "tpope/vim-fugitive",
-    "lewis6991/gitsigns.nvim",
+    requires = {
+      "lewis6991/gitsigns.nvim",
+    },
     config = function()
       require("plugins.git")
     end,
