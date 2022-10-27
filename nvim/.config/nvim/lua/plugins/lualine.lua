@@ -9,43 +9,44 @@ local function diff_source()
   end
 end
 
-require('lualine').setup({
+require("lualine").setup({
   options = {
-    theme = 'rose-pine',
-    section_separators = '',
-    component_separators = '',
+    theme = "rose-pine",
+    section_separators = "",
+    component_separators = "",
+    disabled_filetypes = { "NvimTree" },
   },
   sections = {
-    lualine_a = { '' },
+    lualine_a = { "" },
     lualine_b = {
       {
-        'branch',
+        "branch",
       },
     },
     lualine_c = {
       {
-        'filename',
-        path = 1
+        "filename",
+        path = 1,
       },
       {
-        'diff',
+        "diff",
         source = diff_source,
       },
     },
     lualine_x = {
       {
-        'diagnostics',
-        sources = { 'nvim_lsp' },
-        symbols = { error = 'E:', warn = 'W:', info = 'I:', hint = 'H:' },
+        "diagnostics",
+        sources = { "nvim_lsp" },
+        symbols = { error = "E:", warn = "W:", info = "I:", hint = "H:" },
       },
     },
-    lualine_y = { '' },
+    lualine_y = { "" },
     lualine_z = {
       {
-        'location',
+        "location",
       },
       {
-        'progress',
+        "progress",
       },
     },
   },
