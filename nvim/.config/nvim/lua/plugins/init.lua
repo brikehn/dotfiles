@@ -48,6 +48,17 @@ require("packer").startup(function(use)
     },
   })
 
+  -- File Explorer
+  use({
+    "nvim-tree/nvim-tree.lua",
+    requires = {
+      "nvim-tree/nvim-web-devicons", -- optional, for file icons
+    },
+    config = function()
+      require("plugins.nvim-tree")
+    end,
+  })
+
   -- Autopairs
   use({
     "windwp/nvim-autopairs",
