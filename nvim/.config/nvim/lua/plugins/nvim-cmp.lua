@@ -5,8 +5,8 @@ cmp.setup({
   mapping = {
     ["<C-n>"] = cmp.mapping.select_next_item(),
     ["<C-p>"] = cmp.mapping.select_prev_item(),
-    ["<C-u>"] = cmp.mapping.scroll_docs(4),
-    ["<C-d>"] = cmp.mapping.scroll_docs(-4),
+    ["<C-d>"] = cmp.mapping.scroll_docs(4),
+    ["<C-u>"] = cmp.mapping.scroll_docs(-4),
     ["<C-Space>"] = cmp.mapping.complete(),
     ["<C-e>"] = cmp.mapping.abort(),
     ["<C-y>"] = cmp.mapping.confirm({ select = true }),
@@ -15,8 +15,6 @@ cmp.setup({
   sources = {
     { name = "nvim_lsp" },
     { name = "nvim_lsp_signature_help" },
-    { name = "luasnip" },
-    { name = "buffer" },
     { name = "path" },
   },
   formatting = {
@@ -51,7 +49,7 @@ cmp.setup({
   },
 })
 
-cmp.setup.cmdline("/", {
+cmp.setup.cmdline({ "/", "?" }, {
   mapping = cmp.mapping.preset.cmdline(),
   sources = {
     { name = "buffer" },
