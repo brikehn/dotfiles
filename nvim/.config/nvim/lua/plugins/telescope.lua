@@ -1,26 +1,27 @@
-local actions = require('telescope.actions')
-require('telescope').setup({
+local actions = require("telescope.actions")
+require("telescope").setup({
   defaults = {
-    layout_strategy = 'flex',
+    layout_strategy = "flex",
     layout_config = {
       vertical = {
         preview_cutoff = 20,
-        preview_height = 0.7,
       },
       horizontal = {
-        preview_cutoff = 80
-      }
+        preview_cutoff = 80,
+        preview_width = 80,
+      },
     },
-    file_ignore_patterns = { 'node_modules', '.git' },
+    path_display = { "smart" },
+    file_ignore_patterns = { "node_modules", ".git" },
     color_devicons = true,
     mappings = {
       i = {
-        ['<C-j>'] = actions.move_selection_next,
-        ['<C-k>'] = actions.move_selection_previous,
-        ['<C-q>'] = actions.smart_send_to_qflist + actions.open_qflist,
+        ["<C-j>"] = actions.move_selection_next,
+        ["<C-k>"] = actions.move_selection_previous,
+        ["<C-q>"] = actions.smart_send_to_qflist + actions.open_qflist,
       },
       n = {
-        ['<C-c>'] = actions.close,
+        ["<C-c>"] = actions.close,
       },
     },
   },
@@ -38,11 +39,11 @@ require('telescope').setup({
     },
     git_files = {
       show_untracked = true,
-    }
+    },
   },
 })
 
-require('telescope').load_extension('fzf')
+require("telescope").load_extension("fzf")
 
 local M = {}
 
