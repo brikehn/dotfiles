@@ -1,15 +1,15 @@
-local wezterm = require 'wezterm'
+local wezterm = require("wezterm")
 
 -- Colors
-local dark_colorscheme = require('themes/rose-pine')
-local light_colorscheme = require('themes/rose-pine-dawn')
+local dark_colorscheme = require("themes/rose-pine")
+local light_colorscheme = require("themes/rose-pine-dawn")
 
 -- Fonts
-local font = wezterm.font 'Iosevka Nerd Font Mono'
+local font = wezterm.font("Iosevka Nerd Font Mono")
 -- local font = wezterm.font 'JetBrainsMono Nerd Font Mono'
 
 local function colorscheme_for_appearance(appearance)
-  if appearance:find 'Dark' then
+  if appearance:find("Dark") then
     return dark_colorscheme.colors(), dark_colorscheme.window_frame()
   else
     return light_colorscheme.colors(), light_colorscheme.window_frame()

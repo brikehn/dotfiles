@@ -4,6 +4,7 @@ local o = vim.opt
 o.scrolloff = 8 -- start scrolling this many lines from edge
 o.wrap = false -- display long lines as just one line
 o.updatetime = 50 -- increase how often updates happen
+o.clipboard:append("unnamedplus") -- clipboard
 
 -- Appearance
 o.number = true -- show numbered lines
@@ -11,7 +12,6 @@ o.relativenumber = true -- show relative line numbers
 o.signcolumn = "yes" -- show the sign column
 o.colorcolumn = "80" -- use for max line length guide
 o.shortmess:append("c") -- disable some stuff on shortmess
-o.cursorline = true -- highlights current line
 o.termguicolors = true -- set term gui colors
 
 -- Tabs
