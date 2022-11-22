@@ -20,6 +20,7 @@ map("n", "<leader>vr", "<cmd>Telescope registers<CR>")
 -- LSP Pickers
 map("n", "<leader>ls", "<cmd>Telescope lsp_document_symbols<CR>")
 map("n", "<leader>gd", "<cmd>Telescope lsp_definitions<CR>")
+map("n", "<leader>gr", "<cmd>Telescope lsp_references<CR>")
 map("n", "<leader>gt", "<cmd>Telescope lsp_type_definitions<CR>")
 map("n", "<leader>gi", "<cmd>Telescope lsp_implementations<CR>")
 -- Git
