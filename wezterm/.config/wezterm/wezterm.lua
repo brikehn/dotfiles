@@ -23,8 +23,10 @@ local harfbuzz_features = { "calt=0", "clig=0", "liga=0" } -- disable ligatures
 return {
   font = font,
   font_size = 18.0,
-  colors = colors,
-  window_frame = window_frame,
+  -- colors = colors,
+  -- window_frame = window_frame,
+  hide_tab_bar_if_only_one_tab = true,
   use_fancy_tab_bar = false,
   harfbuzz_features = harfbuzz_features,
+  color_scheme = "Gruvbox dark, soft (base16)",
 }
