@@ -11,7 +11,7 @@ end
 
 require("lualine").setup({
   options = {
-    theme = "rose-pine",
+    theme = "gruvbox-material",
     section_separators = "",
     component_separators = "",
     disabled_filetypes = { "NvimTree" },
