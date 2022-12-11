@@ -5,6 +5,7 @@ o.scrolloff = 8 -- start scrolling this many lines from edge
 o.wrap = false -- display long lines as just one line
 o.updatetime = 50 -- increase how often updates happen
 o.clipboard:append("unnamedplus") -- clipboard
+o.background = 'light'
 
 -- Appearance
 o.number = true -- show numbered lines

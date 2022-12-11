@@ -120,12 +120,10 @@ require("packer").startup(function(use)
   --     config = conf("git-worktree"),
   --   })
 
-
   -- Colorscheme
   use({
-    'sainnhe/gruvbox-material',
-    -- "rose-pine/neovim",
-    -- as = "rose-pine",
+    "rose-pine/neovim",
+    as = "rose-pine",
     config = function()
       require("plugins.colors")
     end,
