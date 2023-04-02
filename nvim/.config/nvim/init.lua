@@ -1,2 +1,1 @@
-print("hello")
 require("brikehn")
