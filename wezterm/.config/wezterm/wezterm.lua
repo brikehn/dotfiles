@@ -4,7 +4,7 @@ local wezterm = require("wezterm")
 local colorscheme = require("themes/rose-pine")
 
 -- Fonts
-local font = wezterm.font("Iosevka Nerd Font Mono")
+local font = wezterm.font("JetBrainsMono Nerd Font Mono")
 
 local harfbuzz_features = { "calt=0", "clig=0", "liga=0" } -- disable ligatures
 
