@@ -2,7 +2,6 @@
 
 ### ZSH
 setopt menucomplete
-setopt auto_cd # No need for 'cd' anymore
 setopt interactive_comments
 stty stop undef # Disable ctrl-s to freeze terminal
 zle_highlight=('paste:none')
@@ -28,7 +27,6 @@ source "${ZDOTDIR}/zsh-functions"
 zsh_add_plugin "zsh-completions"
 zsh_add_plugin "zsh-autosuggestions"
 zsh_add_plugin "zsh-syntax-highlighting"
-
 
 ### Aliases
 alias vim="nvim"
@@ -77,6 +75,8 @@ export NVM_DIR="$HOME/.config/nvm"
 path+=("$HOME/.rvm/bin")
 
 path+=("$HOME/.local/bin")
+
+path+="$(yarn global bin)"
 
 export PATH
 
