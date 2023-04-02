@@ -1,5 +1,2 @@
-require('utils')
-require('plugins')
-require('mappings')
-require('options')
-require('autocmd')
+print("hello")
+require("brikehn")
