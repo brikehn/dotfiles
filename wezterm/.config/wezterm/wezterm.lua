@@ -1,7 +1,7 @@
 local wezterm = require("wezterm")
 
 -- Colors
-local colorscheme = require("themes/rose-pine")
+local colorscheme = require("themes/rose-pine-dawn")
 
 -- Fonts
 local font = wezterm.font("JetBrainsMono Nerd Font Mono")
