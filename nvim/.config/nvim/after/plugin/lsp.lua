@@ -6,10 +6,15 @@ lsp.ensure_installed({
 
 lsp.on_attach(function(client, bufnr)
   lsp.default_keymaps({ buffer = bufnr })
+
+  vim.keymap.set({ "n", "x" }, "gq", vim.lsp.buf.format, { buffer = true })
+  vim.keymap.set("n", "gR", vim.lsp.buf.rename, { buffer = true })
+  vim.keymap.set("n", "ga", vim.lsp.buf.code_action, { buffer = true })
 end)
 
 -- (Optional) Configure lua language server for neovim
 require("lspconfig").lua_ls.setup(lsp.nvim_lua_ls())
+
 
 lsp.setup()
 
@@ -51,9 +56,9 @@ cmp.setup({
 })
 
 require("mason-null-ls").setup({
-	ensure_installed = { "stylua", "eslint_d", "prettier" },
-	automatic_installation = false,
-	automatic_setup = true, -- Recommended, but optional})
+  ensure_installed = { "stylua", "eslint_d", "prettier" },
+  automatic_installation = false,
+  automatic_setup = true, -- Recommended, but optional})
 })
 
 require("mason-null-ls").setup_handlers()
