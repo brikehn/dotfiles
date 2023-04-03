@@ -44,4 +44,6 @@ fi
 export BUN_INSTALL="/Users/thebriankwon/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
-eval "$(/opt/homebrew/bin/brew shellenv)"
+if [[ $(arch) == 'arm64' ]]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
