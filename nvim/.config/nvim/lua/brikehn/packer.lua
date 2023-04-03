@@ -47,6 +47,8 @@ require("packer").startup(function(use)
 	use("tpope/vim-fugitive")
 	use("tpope/vim-commentary")
 
+  use("ThePrimeagen/harpoon")
+
 	use({
 		"rose-pine/neovim",
 		as = "rose-pine",
