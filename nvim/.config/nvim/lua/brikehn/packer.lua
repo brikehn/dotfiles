@@ -49,6 +49,8 @@ require("packer").startup(function(use)
 
   use("ThePrimeagen/harpoon")
 
+  use("github/copilot.vim")
+
 	use({
 		"rose-pine/neovim",
 		as = "rose-pine",
