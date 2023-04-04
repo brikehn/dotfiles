@@ -44,12 +44,14 @@ require("packer").startup(function(use)
 		},
 	})
 
+	use("windwp/nvim-autopairs")
+
 	use("tpope/vim-fugitive")
 	use("tpope/vim-commentary")
 
-  use("ThePrimeagen/harpoon")
+	use("ThePrimeagen/harpoon")
 
-  use("github/copilot.vim")
+	use("github/copilot.vim")
 
 	use({
 		"rose-pine/neovim",
