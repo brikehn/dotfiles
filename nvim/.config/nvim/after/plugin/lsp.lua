@@ -14,6 +14,21 @@ end)
 
 -- (Optional) Configure lua language server for neovim
 require("lspconfig").lua_ls.setup(lsp.nvim_lua_ls())
+require("lspconfig").tailwindcss.setup({
+  settings = {
+    tailwindCSS = {
+      classAttributes = { ".*Styles*" },
+      experimental = {
+        classRegex = {
+          {
+            "clsx\\(([^)]*)\\)",
+            "(?:'|\"|`)([^']*)(?:'|\"|`)",
+          },
+        },
+      },
+    },
+  },
+})
 
 lsp.setup()
 
@@ -53,12 +68,11 @@ cmp.setup({
   },
 })
 
+local null_ls = require("null-ls")
 require("mason-null-ls").setup({
   ensure_installed = { "stylua", "eslint_d", "prettier" },
-  automatic_installation = false,
-  automatic_setup = true, -- Recommended, but optional})
+  automatic_setup = true,
+  handlers = {},
 })
 
-require("mason-null-ls").setup_handlers()
-
-require("null-ls").setup()
+null_ls.setup()
