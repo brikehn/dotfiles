@@ -63,7 +63,7 @@ bindkey -M menuselect '^k' vi-up-line-or-history
 bindkey -M menuselect '^l' vi-forward-char
 bindkey -M menuselect '^j' vi-down-line-or-history
 
-source "${ZDOTDIR}/secrets"
+test -f "${ZDOTDIR}/secrets" && source "${ZDOTDIR}/secrets"
 
 if [ -z "$SSH_AUTH_SOCK" ] ; then
     eval `ssh-agent -s`
