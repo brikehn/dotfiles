@@ -42,7 +42,7 @@ else
   alias ls="ls -F --color=auto"
 fi
 
-alias awsps='export AWS_PROFILE=$( aws configure list-profiles | fzf )'
+alias awsps="export AWS_PROFILE=\$( perl -n -e'/\[profile (.*)\]/ && print \"\$1\n\"' $HOME/.aws/config | fzf )"
 
 ### Keybinds
 bindkey -v
