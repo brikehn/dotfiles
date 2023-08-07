@@ -1,3 +1,7 @@
+-- Netrw
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
 -- General
 vim.opt.scrolloff = 8   -- start scrolling this many lines from edge
 vim.opt.wrap = false    -- display long lines as just one line
