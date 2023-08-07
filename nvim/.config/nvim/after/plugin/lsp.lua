@@ -5,7 +5,7 @@ lsp.ensure_installed({
 })
 
 lsp.on_attach(function(client, bufnr)
-  lsp.default_keymaps({ buffer = bufnr, preserve_mappings = false })
+  lsp.default_keymaps({ buffer = bufnr, preserve_mappings = true })
 
   vim.keymap.set({ "n", "x" }, "gq", vim.lsp.buf.format, { buffer = true })
   vim.keymap.set("n", "gR", vim.lsp.buf.rename, { buffer = true })
@@ -17,7 +17,7 @@ require("lspconfig").lua_ls.setup(lsp.nvim_lua_ls())
 require("lspconfig").tailwindcss.setup({
   settings = {
     tailwindCSS = {
-      classAttributes = { ".*Styles*" },
+      classAttributes = { "class", "className", ".*Styles*" },
       experimental = {
         classRegex = {
           {
@@ -46,7 +46,6 @@ cmp.setup({
     ["<C-b>"] = cmp_action.luasnip_jump_backward(),
   },
   sources = {
-    { name = "path" },
     { name = "nvim_lsp_signature_help" },
     { name = "nvim_lsp" },
     { name = "nvim_lua" },
