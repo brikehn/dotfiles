@@ -29,8 +29,6 @@ require("lazy").setup({
 			{ "neovim/nvim-lspconfig" }, -- Required
 			{ "williamboman/mason.nvim" },
 			{ "williamboman/mason-lspconfig.nvim" },
-			{ "jose-elias-alvarez/null-ls.nvim" },
-			{ "jay-babu/mason-null-ls.nvim" },
 			-- Autocompletion
 			{ "hrsh7th/nvim-cmp" }, -- Required
 			{ "hrsh7th/cmp-nvim-lsp" }, -- Required
@@ -40,6 +38,10 @@ require("lazy").setup({
 			{ "hrsh7th/cmp-nvim-lua" },
 			{ "hrsh7th/cmp-nvim-lsp-signature-help" },
 		},
+	},
+	{
+		"creativenull/efmls-configs-nvim",
+		version = "v0.1.3",
 	},
 	{
 		"windwp/nvim-autopairs",
