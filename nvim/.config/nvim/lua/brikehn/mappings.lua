@@ -4,6 +4,12 @@ vim.g.mapleader = " "
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 
+vim.g.tmux_navigator_no_mappings = 1
+vim.keymap.set("n", "<C-w>h", "<cmd>TmuxNavigateLeft<CR>", { silent = true, noremap = true })
+vim.keymap.set("n", "<C-w>j", "<cmd>TmuxNavigateDown<CR>", { silent = true, noremap = true })
+vim.keymap.set("n", "<C-w>k", "<cmd>TmuxNavigateUp<CR>", { silent = true, noremap = true })
+vim.keymap.set("n", "<C-w>l", "<cmd>TmuxNavigateRight<CR>", { silent = true, noremap = true })
+
 vim.keymap.set("n", "J", "mzJ`z")
 vim.keymap.set("n", "<C-d>", "<C-d>zz")
 vim.keymap.set("n", "<C-u>", "<C-u>zz")

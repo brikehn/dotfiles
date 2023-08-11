@@ -73,4 +73,5 @@ require("lazy").setup({
 			vim.cmd.colorscheme("rose-pine")
 		end,
 	},
+	"christoomey/vim-tmux-navigator",
 })
