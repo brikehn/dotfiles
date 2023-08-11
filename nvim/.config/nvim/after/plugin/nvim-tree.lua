@@ -44,8 +44,8 @@ require("nvim-tree").setup({
 			},
 			git_placement = "after",
 			glyphs = {
-				default = " ",
-				symlink = " ",
+				default = "",
+				symlink = "",
 				git = {
 					unstaged = "",
 					staged = "S",
