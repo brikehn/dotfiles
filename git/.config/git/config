@@ -2,8 +2,8 @@
 [user]
     name = brikehn
     email = thebriankwon@gmail.com
-[includeIf "gitdir/i:~/work/"]
-    path = ~/.config/git/work
+[includeIf "gitdir/i:~/dailypay/"]
+    path = ~/.config/git/dailypay
 [alias]
     lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative
     st = status --short --branch -M
