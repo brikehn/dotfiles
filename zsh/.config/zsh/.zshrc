@@ -80,6 +80,8 @@ path+=("$HOME/.local/bin")
 
 path+="$(yarn global bin)"
 
+path+=("$HOME/go/bin")
+
 export PATH
 
 . "$HOME/.cargo/env"
@@ -90,3 +92,4 @@ export PATH
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
 
 eval "$(starship init zsh)"
+export PATH="/opt/homebrew/opt/libpq/bin:$PATH"

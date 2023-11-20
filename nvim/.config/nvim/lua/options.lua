@@ -9,7 +9,6 @@ vim.opt.relativenumber = true -- show relative line numbers
 vim.opt.signcolumn = "yes"    -- show the sign column
 vim.opt.colorcolumn = "80"    -- use for max line length guide
 vim.opt.termguicolors = true  -- set term gui colors
-vim.opt.background = 'dark'
 
 -- Tabs
 vim.opt.tabstop = 4      -- length of \t in spaces
