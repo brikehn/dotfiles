@@ -1,15 +1,12 @@
 return {
-	{ "folke/neodev.nvim", opts = {} },
+	{ "folke/neodev.nvim" },
 	{ "creativenull/efmls-configs-nvim", version = "v1.2.0" },
 	{ "williamboman/mason.nvim", opts = {} },
 	{
 		"williamboman/mason-lspconfig.nvim",
-		dependencies = {
-			{ "neovim/nvim-lspconfig" },
-		},
+		dependencies = { { "neovim/nvim-lspconfig" } },
 		opts = {},
 		config = function()
-			vim.lsp.set_log_level("debug")
 			vim.keymap.set("n", "gl", vim.diagnostic.open_float)
 			vim.keymap.set("n", "[d", vim.diagnostic.goto_prev)
 			vim.keymap.set("n", "]d", vim.diagnostic.goto_next)
