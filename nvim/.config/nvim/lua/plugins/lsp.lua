@@ -45,16 +45,19 @@ return {
 					})
 				end,
 				efm = function()
-					local eslint = require("efmls-configs.linters.eslint")
+					local eslint = require("efmls-configs.linters.eslint_d")
 					local prettier = require("efmls-configs.formatters.prettier")
 					local luacheck = require("efmls-configs.linters.luacheck")
 					local stylua = require("efmls-configs.formatters.stylua")
 					local gofmt = require("efmls-configs.formatters.gofmt")
-					local golangci_lint = require("efmls-configs.linters.golangci_lint")
 					local stylelint = require("efmls-configs.linters.stylelint")
 					local autopep8 = require("efmls-configs.formatters.autopep8")
 					local flake8 = require("efmls-configs.linters.flake8")
-					local rubocop = require("efmls-configs.linters.rubocop")
+					local rubocopLint = require("efmls-configs.linters.rubocop")
+					local rubocopFormat = {
+						formatCommand = "bundle exec rubocop -A -f quiet --stderr -s ${INPUT}",
+						formatStdin = true,
+					}
 
 					local languages = {
 						html = { stylelint, prettier },
@@ -68,9 +71,9 @@ return {
 						markdown = { prettier },
 						yaml = { prettier },
 						json = { prettier },
-						ruby = { rubocop },
+						ruby = { rubocopLint, rubocopFormat },
 						lua = { luacheck, stylua },
-						go = { golangci_lint, gofmt },
+						go = { gofmt },
 					}
 
 					local efmls_config = {
@@ -85,7 +88,9 @@ return {
 						},
 					}
 
-					require("lspconfig").efm.setup(efmls_config)
+					require("lspconfig").efm.setup(vim.tbl_extend("force", efmls_config, {
+						capabilities = capabilities,
+					}))
 				end,
 			})
 		end,

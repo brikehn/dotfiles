@@ -5,37 +5,3 @@ add_newline = true
 
 [line_break]
 disabled = false
-
-[cmd_duration]
-format = "[ $duration]($style) "
-style = "yellow"
-
-[aws]
-symbol = " "
-style = "yellow"
-
-[docker_context]
-symbol = " "
-style = "blue"
-
-[git_branch]
-symbol = " "
-style =	"purple"
-
-[golang]
-symbol = " "
-style = "cyan"
-not_capable_style = "red"
-
-[lua]
-symbol = " "
-style = "blue"
-
-[nodejs]
-symbol = " "
-style = "green"
-not_capable_style = "red"
-
-[ruby]
-symbol = " "
-style = "red"
