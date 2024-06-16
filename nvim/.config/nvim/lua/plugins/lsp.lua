@@ -1,31 +1,26 @@
 return {
-	{ "folke/neodev.nvim" },
 	{ "creativenull/efmls-configs-nvim", version = "v1.2.0" },
 	{ "williamboman/mason.nvim", opts = {} },
+	{ "neovim/nvim-lspconfig" },
 	{
 		"williamboman/mason-lspconfig.nvim",
-		dependencies = { { "neovim/nvim-lspconfig" } },
 		opts = {},
 		config = function()
-			vim.keymap.set("n", "gl", vim.diagnostic.open_float)
-			vim.keymap.set("n", "[d", vim.diagnostic.goto_prev)
-			vim.keymap.set("n", "]d", vim.diagnostic.goto_next)
-
 			vim.api.nvim_create_autocmd("LspAttach", {
 				group = vim.api.nvim_create_augroup("UserLspConfig", {}),
 				callback = function(event)
 					local opts = { buffer = event.buf }
 
-					vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
 					vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
 					vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
-					vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
-					vim.keymap.set("n", "go", vim.lsp.buf.type_definition, opts)
-					vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
-					vim.keymap.set("n", "<C-k>", vim.lsp.buf.signature_help, opts)
 
 					vim.keymap.set({ "n", "x", "v" }, "gq", function()
-						vim.lsp.buf.format({ name = "efm", async = true })
+						vim.lsp.buf.format({
+							filter = function(client)
+								return client.name == "efm" or client.name == "templ"
+							end,
+							async = true,
+						})
 					end, opts)
 					vim.keymap.set("n", "gR", vim.lsp.buf.rename, opts)
 					vim.keymap.set({ "n", "v" }, "ga", vim.lsp.buf.code_action, opts)
@@ -99,10 +94,9 @@ return {
 		"dnlhc/glance.nvim",
 		opts = {},
 		config = function()
-			vim.keymap.set("n", "<leader>gd", "<CMD>Glance definitions<CR>")
-			vim.keymap.set("n", "<leader>gr", "<CMD>Glance references<CR>")
-			vim.keymap.set("n", "<leader>go", "<CMD>Glance type_definitions<CR>")
-			vim.keymap.set("n", "<leader>gi", "<CMD>Glance implementations<CR>")
+			vim.keymap.set("n", "gr", "<CMD>Glance references<CR>")
+			vim.keymap.set("n", "go", "<CMD>Glance type_definitions<CR>")
+			vim.keymap.set("n", "gi", "<CMD>Glance implementations<CR>")
 		end,
 	},
 }

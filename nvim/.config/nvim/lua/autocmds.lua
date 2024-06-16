@@ -12,10 +12,14 @@ vim.api.nvim_create_autocmd("Filetype", {
 		"graphql",
 		"html",
 		"sh",
+		"templ",
 	},
 	command = "setlocal shiftwidth=2 tabstop=2",
 })
-vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-	pattern = { "*.thor" },
-	command = "set filetype=ruby",
+
+vim.filetype.add({
+	extension = {
+		templ = "templ",
+		thor = "ruby",
+	},
 })
