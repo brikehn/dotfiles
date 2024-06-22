@@ -66,6 +66,7 @@ return {
 						markdown = { prettier },
 						yaml = { prettier },
 						json = { prettier },
+						jsonc = { prettier },
 						ruby = { rubocopLint, rubocopFormat },
 						lua = { luacheck, stylua },
 						go = { gofmt },
