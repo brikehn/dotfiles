@@ -62,16 +62,14 @@ return {
 					},
 				},
 				view_options = {
-					show_hidden = true,
 					is_hidden_file = function(name, _)
-						-- dotfiles are always considered hidden
-						if vim.startswith(name, ".") then
-							return true
-						end
 						local dir = require("oil").get_current_dir()
 						-- if no local directory (e.g. for ssh connections), always show
 						if not dir then
 							return false
+						end
+						if name:match("^.git$") then
+							return true
 						end
 						-- Check if file is gitignored
 						return vim.list_contains(git_ignored[dir], name)
