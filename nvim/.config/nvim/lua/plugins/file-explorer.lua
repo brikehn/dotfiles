@@ -39,6 +39,8 @@ return {
 						opts = { vertical = true },
 						desc = "Open the entry in a vertical split",
 					},
+					["<C-s>"] = false,
+					["<C-h>"] = false,
 					["<C-j>"] = {
 						"actions.select",
 						opts = { horizontal = true },
