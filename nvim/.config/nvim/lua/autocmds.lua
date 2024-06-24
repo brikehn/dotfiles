@@ -11,6 +11,7 @@ vim.api.nvim_create_autocmd("Filetype", {
 		"jsonc",
 		"graphql",
 		"html",
+		"css",
 		"sh",
 		"templ",
 	},
