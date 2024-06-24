@@ -32,12 +32,14 @@ return {
 			require("oil").setup({
 				columns = { "icon" },
 				keymaps = {
-					["<C-v>"] = {
+					["<C-c>"] = false,
+					["<Esc>"] = "actions.close",
+					["<C-l>"] = {
 						"actions.select",
 						opts = { vertical = true },
 						desc = "Open the entry in a vertical split",
 					},
-					["<C-h>"] = {
+					["<C-j>"] = {
 						"actions.select",
 						opts = { horizontal = true },
 						desc = "Open the entry in a horizontal split",
@@ -51,8 +53,8 @@ return {
 						desc = "Toggle file detail view",
 						callback = function()
 							detail = not detail
-              if detail then
-                require("oil").set_columns({ "icon", "permissions", "size", "mtime" })
+							if detail then
+								require("oil").set_columns({ "icon", "permissions", "size", "mtime" })
 							else
 								require("oil").set_columns({ "icon" })
 							end
