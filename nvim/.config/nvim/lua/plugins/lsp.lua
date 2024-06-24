@@ -1,5 +1,5 @@
 return {
-	{ "creativenull/efmls-configs-nvim", version = "v1.2.0" },
+	{ "creativenull/efmls-configs-nvim", version = "v1.7.0" },
 	{ "williamboman/mason.nvim", opts = {} },
 	{ "neovim/nvim-lspconfig" },
 	{
