@@ -8,4 +8,6 @@ zsh/.config/zsh/.zsh_history
 zsh/.config/zsh/.zsh_sessions
 zsh/.config/zsh/secrets
 
+git/.config/git/ssh
+
 tmux/.config/tmux/plugins/tmux*
