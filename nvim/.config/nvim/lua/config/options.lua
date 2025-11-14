@@ -13,10 +13,10 @@ vim.opt.splitright = true
 vim.opt.splitbelow = true
 
 -- Tabs
-vim.opt.tabstop = 4      -- length of \t in spaces
-vim.opt.softtabstop = 4  -- length of tab/backspace keypress in spaces
-vim.opt.shiftwidth = 4   -- length of indentation in spaces
-vim.opt.expandtab = true -- converts \t to spaces
+vim.opt.tabstop = 4         -- length of \t in spaces
+vim.opt.softtabstop = 4     -- length of tab/backspace keypress in spaces
+vim.opt.shiftwidth = 4      -- length of indentation in spaces
+vim.opt.expandtab = true    -- converts \t to spaces when true
 vim.opt.smartindent = true
 
 -- Backups

@@ -1,27 +1,30 @@
 return {
-	{
-		"rose-pine/neovim",
-		name = "rose-pine",
-		opts = {
-			dim_inactive_windows = true,
-			highlight_groups = {
-				TelescopeBorder = { fg = "overlay", bg = "overlay" },
-				TelescopeNormal = { fg = "subtle", bg = "overlay" },
-				TelescopeSelection = { fg = "text", bg = "highlight_med" },
-				TelescopeSelectionCaret = { fg = "love", bg = "highlight_med" },
-				TelescopeMultiSelection = { fg = "text", bg = "highlight_high" },
+    {
+	"rose-pine/neovim",
+	name = "rose-pine",
+	opts = {
+	    dim_inactive_windows = true,
+	    highlight_groups = {
+		TelescopeTitle = { fg = "base", bg = "love" },
+		TelescopeBorder = { fg = "overlay", bg = "overlay" },
+		TelescopeNormal = { fg = "subtle", bg = "overlay" },
 
-				TelescopeTitle = { fg = "base", bg = "love" },
-				TelescopePromptTitle = { fg = "base", bg = "pine" },
-				TelescopePreviewTitle = { fg = "base", bg = "iris" },
+		TelescopeSelection = { fg = "text", bg = "highlight_med" },
+		TelescopeSelectionCaret = { fg = "love", bg = "highlight_med" },
+		TelescopeMultiSelection = { fg = "text", bg = "highlight_high" },
 
-				TelescopePromptNormal = { fg = "text", bg = "surface" },
-				TelescopePromptBorder = { fg = "surface", bg = "surface" },
-			},
-		},
-		init = function()
-			vim.opt.background = "light"
-			vim.cmd.colorscheme("rose-pine")
-		end,
+		TelescopePreviewTitle = { fg = "surface", bg = "iris" },
+		TelescopePreviewNormal = { bg = "surface" },
+		TelescopePreviewBorder = { fg = "surface", bg = "surface" },
+
+		TelescopePromptTitle = { fg = "base", bg = "pine" },
+		TelescopePromptNormal = { fg = "text", bg = "base" },
+		TelescopePromptBorder = { fg = "base", bg = "base" },
+	    },
 	},
+	init = function()
+	    vim.opt.background = "light"
+	    vim.cmd.colorscheme("rose-pine")
+	end,
+    },
 }

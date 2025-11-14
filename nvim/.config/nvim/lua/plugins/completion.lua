@@ -3,17 +3,22 @@ return {
 		"zbirenbaum/copilot.lua",
 		cmd = "Copilot",
 		event = "InsertEnter",
-		opts = {
-			suggestion = {
-				auto_trigger = true,
-				keymap = {
-					accept = "<C-l>",
-					next = "<C-j>",
-					prev = "<C-k>",
-					dismiss = "<C-h>",
-				},
-			},
-		},
+		config = function()
+            require("copilot").setup({
+                filetypes = {
+                    markdown = true,
+                },
+                suggestion = {
+                    auto_trigger = true,
+                    keymap = {
+                        accept = "<C-l>",
+                        next = "<C-]>",
+                        prev = "<C-[>",
+                        dismiss = "<C-\\>",
+                    },
+                },
+            })
+        end,
 	},
 	{
 		"hrsh7th/nvim-cmp",
@@ -48,9 +53,9 @@ return {
 						luasnip.lsp_expand(args.body)
 					end,
 				},
-        window = {
-          documentation = cmp.config.window.bordered()
-        },
+				window = {
+					documentation = cmp.config.window.bordered(),
+				},
 				mapping = {
 					["<C-n>"] = cmp.mapping.select_next_item(),
 					["<C-p>"] = cmp.mapping.select_prev_item(),

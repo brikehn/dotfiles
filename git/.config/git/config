@@ -2,16 +2,32 @@
 [user]
     name = brikehn
     email = thebriankwon@gmail.com
+	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILu3bXmgzll3wzM+Dsxw5uxVHfL54ze8fp4JnJ5d0hau
 [includeIf "gitdir/i:~/dailypay/"]
     path = ~/.config/git/dailypay
 [alias]
-    lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative
+    lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset [%an]' --abbrev-commit --date=relative
     st = status --short --branch -M
     co = checkout
-    pushf = push --force-with-lease
+    cm    = commit -m
+    br    = branch
+    d     = diff
+    pl    = pull
+    pu    = push
+    a     = add
+    ac    = !git add . && git commit -m
+    undo  = reset --soft HEAD~1
 [pull]
     rebase = true
 [core]
     editor = nvim
 [init]
     defaultBranch = main
+[gpg]
+	format = ssh
+[gpg "ssh"]
+	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+[commit]
+	gpgsign = true
+[url "ssh://git@github.com/"]
+	insteadOf = https://github.com/
