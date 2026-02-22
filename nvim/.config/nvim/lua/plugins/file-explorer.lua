@@ -1,86 +1,115 @@
 return {
-    {
-	"stevearc/oil.nvim",
-	dependencies = { "nvim-tree/nvim-web-devicons" },
-	config = function()
-	    local detail = false
+	{
+		"stevearc/oil.nvim",
+		dependencies = { { "nvim-mini/mini.icons", opts = {} } },
+		lazy = false,
+		opts = function()
+			-- helper function to parse output
+			local function parse_output(proc)
+				local result = proc:wait()
+				local ret = {}
+				if result.code == 0 then
+					for line in vim.gsplit(result.stdout, "\n", { plain = true, trimempty = true }) do
+						-- Remove trailing slash
+						line = line:gsub("/$", "")
+						ret[line] = true
+					end
+				end
+				return ret
+			end
 
-	    local git_ignored = setmetatable({}, {
-		__index = function(self, key)
-		    local proc = vim.system(
-			{ "git", "ls-files", "--ignored", "--exclude-standard", "--others", "--directory" },
-			{
-			    cwd = key,
-			    text = true,
+			-- build git status cache
+			local function new_git_status()
+				return setmetatable({}, {
+					__index = function(self, key)
+						local ignore_proc = vim.system(
+							{ "git", "ls-files", "--ignored", "--exclude-standard", "--others", "--directory" },
+							{
+								cwd = key,
+								text = true,
+							}
+						)
+						local tracked_proc = vim.system({ "git", "ls-tree", "HEAD", "--name-only" }, {
+							cwd = key,
+							text = true,
+						})
+						local ret = {
+							ignored = parse_output(ignore_proc),
+							tracked = parse_output(tracked_proc),
+						}
+
+						rawset(self, key, ret)
+						return ret
+					end,
+				})
+			end
+
+			local git_status = new_git_status()
+
+			-- Clear git status cache on refresh
+			local refresh = require("oil.actions").refresh
+			local orig_refresh = refresh.callback
+			refresh.callback = function(...)
+				git_status = new_git_status()
+				orig_refresh(...)
+			end
+
+			-- Open parent directory in current window
+			vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
+
+			local detail = false
+
+			return {
+				skip_confirm_for_simple_edits = true,
+				keymaps = {
+					["<C-l>"] = {
+						"actions.select",
+						opts = { vertical = true },
+						desc = "Open the entry in a vertical split",
+					},
+					["<C-s>"] = false,
+					["<C-h>"] = false,
+					["<C-t>"] = false,
+					["<C-j>"] = {
+						"actions.select",
+						opts = { horizontal = true },
+						desc = "Open the entry in a horizontal split",
+					},
+					["<C-p>"] = false,
+					["gp"] = "actions.preview",
+					["<C-y>"] = "actions.yank_entry",
+					["<C-u>"] = "actions.preview_scroll_up",
+					["<C-d>"] = "actions.preview_scroll_down",
+					["gd"] = {
+						desc = "Toggle file detail view",
+						callback = function()
+							detail = not detail
+							if detail then
+								require("oil").set_columns({ "icon", "permissions", "size", "mtime" })
+							else
+								require("oil").set_columns({ "icon" })
+							end
+						end,
+					},
+				},
+				view_options = {
+					is_hidden_file = function(name, bufnr)
+						local dir = require("oil").get_current_dir(bufnr)
+						local is_dotfile = vim.startswith(name, ".") and name ~= ".."
+						-- if no local directory (e.g. for ssh connections), just hide dotfiles
+						if not dir then
+							return is_dotfile
+						end
+						-- dotfiles are considered hidden unless tracked
+						if is_dotfile then
+							return not git_status[dir].tracked[name]
+						else
+							-- Check if file is gitignored
+							return git_status[dir].ignored[name]
+						end
+					end,
+				},
 			}
-		    )
-		    local result = proc:wait()
-		    local ret = {}
-		    if result.code == 0 then
-			for line in vim.gsplit(result.stdout, "\n", { plain = true, trimempty = true }) do
-			    -- Remove trailing slash
-			    line = line:gsub("/$", "")
-			    table.insert(ret, line)
-			end
-		    end
-
-		    rawset(self, key, ret)
-		    return ret
 		end,
-	    })
-
-	    require("oil").setup({
-		columns = { "icon" },
-		keymaps = {
-		    ["<C-c>"] = false,
-		    ["<Esc>"] = "actions.close",
-		    ["<C-l>"] = {
-			"actions.select",
-			opts = { vertical = true },
-			desc = "Open the entry in a vertical split",
-		    },
-		    ["<C-s>"] = false,
-		    ["<C-h>"] = false,
-		    ["<C-j>"] = {
-			"actions.select",
-			opts = { horizontal = true },
-			desc = "Open the entry in a horizontal split",
-		    },
-		    ["<C-p>"] = false,
-		    ["gp"] = "actions.preview",
-		    ["<C-y>"] = "actions.yank_entry",
-		    ["<C-u>"] = "actions.preview_scroll_up",
-		    ["<C-d>"] = "actions.preview_scroll_down",
-		    ["gd"] = {
-			desc = "Toggle file detail view",
-			callback = function()
-			    detail = not detail
-			    if detail then
-				require("oil").set_columns({ "icon", "permissions", "size", "mtime" })
-			    else
-				require("oil").set_columns({ "icon" })
-			    end
-			end,
-		    },
-		},
-		view_options = {
-		    is_hidden_file = function(name, _)
-			local dir = require("oil").get_current_dir()
-			-- if no local directory (e.g. for ssh connections), always show
-			if not dir then
-			    return false
-			end
-			if name:match("^.git$") then
-			    return true
-			end
-			-- Check if file is gitignored
-			return vim.list_contains(git_ignored[dir], name)
-		    end,
-		},
-	    })
-
-	    -- Open parent directory in current window
-	    vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
-	end,
-    },
+	},
 }

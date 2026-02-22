@@ -1,4 +1,5 @@
 -- Standard vim config
+require("config.filetype")
 require("config.autocmds")
 require("config.mappings")
 require("config.options")
