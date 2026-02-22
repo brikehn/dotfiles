@@ -3,22 +3,22 @@ return {
 		"zbirenbaum/copilot.lua",
 		cmd = "Copilot",
 		event = "InsertEnter",
-		config = function()
-            require("copilot").setup({
-                filetypes = {
-                    markdown = true,
-                },
-                suggestion = {
-                    auto_trigger = true,
-                    keymap = {
-                        accept = "<C-l>",
-                        next = "<C-]>",
-                        prev = "<C-[>",
-                        dismiss = "<C-\\>",
-                    },
-                },
-            })
-        end,
+		opts = function()
+			return {
+				filetypes = {
+					markdown = true,
+				},
+				suggestion = {
+					auto_trigger = true,
+					keymap = {
+						accept = "<C-l>",
+						next = "<C-]>",
+						prev = "<C-[>",
+						dismiss = "<C-\\>",
+					},
+				},
+			}
+		end,
 	},
 	{
 		"hrsh7th/nvim-cmp",
@@ -92,6 +92,7 @@ return {
 					{ name = "luasnip" },
 					{ name = "buffer", keyword_length = 3 },
 					{ name = "path", keyword_length = 3 },
+					{ name = "lazydev", group_index = 0 },
 				}),
 				experimental = { ghost_text = true },
 				formatting = {

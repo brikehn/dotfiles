@@ -1,31 +1,32 @@
 -- General
-vim.opt.scrolloff = 8   -- start scrolling this many lines from edge
-vim.opt.wrap = false    -- display long lines as just one line
+vim.opt.scrolloff = 8 -- start scrolling this many lines from edge
+vim.opt.wrap = false -- display long lines as just one line
 vim.opt.updatetime = 50 -- increase how often updates happen
+vim.opt.foldenable = false
 
 -- Appearance
-vim.opt.number = true         -- show numbered lines
+vim.opt.number = true -- show numbered lines
 vim.opt.relativenumber = true -- show relative line numbers
-vim.opt.signcolumn = "yes"    -- show the sign column
-vim.opt.colorcolumn = "80"    -- use for max line length guide
-vim.opt.termguicolors = true  -- set term gui colors
+vim.opt.signcolumn = "yes" -- show the sign column
+vim.opt.colorcolumn = "80" -- use for max line length guide
+vim.opt.termguicolors = true -- set term gui colors
 vim.opt.splitright = true
 vim.opt.splitbelow = true
 
 -- Tabs
-vim.opt.tabstop = 4         -- length of \t in spaces
-vim.opt.softtabstop = 4     -- length of tab/backspace keypress in spaces
-vim.opt.shiftwidth = 4      -- length of indentation in spaces
-vim.opt.expandtab = true    -- converts \t to spaces when true
+vim.opt.tabstop = 8 -- length of \t in spaces
+vim.opt.softtabstop = -1 -- length of tab/backspace keypress in spaces; negative value uses 'shiftwidth'
+vim.opt.shiftwidth = 4 -- length of indentation in spaces
+vim.opt.expandtab = false -- converts \t to spaces when true
 vim.opt.smartindent = true
 
 -- Backups
-vim.opt.backup = false   -- don't create backups
+vim.opt.backup = false -- don't create backups
 vim.opt.swapfile = false -- don't create a swap file
 vim.opt.undodir = vim.fn.stdpath("cache") .. "/undo"
-vim.opt.undofile = true  -- persistent undo
+vim.opt.undofile = true -- persistent undo
 
 -- Search
 vim.opt.inccommand = "split" -- show a split for substitutions
-vim.opt.incsearch = true     -- update search while typing
-vim.opt.hlsearch = false     -- stops highlighting when searching
+vim.opt.incsearch = true -- update search while typing
+vim.opt.hlsearch = false -- stops highlighting when searching

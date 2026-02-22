@@ -1,95 +1,66 @@
-#!/bin/zsh
+# ----- Zsh Configuration -----
 
-### ZSH
-setopt menucomplete
-setopt interactive_comments
-stty stop undef # Disable ctrl-s to freeze terminal
-zle_highlight=('paste:none')
+bindkey -e # Use emacs-style bindings
 
-unsetopt BEEP
+# Options
+setopt MENU_COMPLETE # Enable menu completion
+setopt INTERACTIVE_COMMENTS # Allow comments in shell
+setopt HIST_IGNORE_ALL_DUPS # Remove duplicates in history
 
-### Completions
-autoload -Uz compinit
+# Completion configuration
 zstyle ':completion:*' menu select
-zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
-zmodload zsh/complist
-compinit
-_comp_options+=(globdots) # Include hidden files
-autoload -U up-line-or-beginning-search
-autoload -U down-line-or-beginning-search
-zle -N up-line-or-beginning-search
-zle -N down-line-or-beginning-search
+zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
 
-### Functions
-source "${ZDOTDIR}/zsh-functions"
+# ----- Aliases -----
 
-### Plugins
-zsh_add_plugin "zsh-completions"
-zsh_add_plugin "zsh-autosuggestions"
-zsh_add_plugin "zsh-syntax-highlighting"
-
-### Aliases
 alias vim="nvim"
 
-# Colorize grep output (good for log files)
-alias grep='grep --color=auto'
-alias egrep='egrep --color=auto'
-alias fgrep='fgrep --color=auto'
-
+# Pretty `ls`
 if [[ "$OSTYPE" == "darwin"* ]]; then
   alias ls="ls -FG"
 else
   alias ls="ls -F --color=auto"
 fi
 
-alias awsps="export AWS_PROFILE=\$( perl -n -e'/\[profile (.*)\]/ && print \"\$1\n\"' $HOME/.aws/config | fzf )"
+# ----- Initialization -----
 
-### Keybinds
-bindkey -v
-bindkey "^p" up-line-or-beginning-search # Up
-bindkey "^n" down-line-or-beginning-search # Down
-bindkey "^k" up-line-or-beginning-search # Down
-bindkey "^j" down-line-or-beginning-search # Down
-bindkey -r "^u"
-bindkey -r "^d"
-bindkey "^ " autosuggest-accept
-bindkey "^[[Z" reverse-menu-complete
-
-export KEYTIMEOUT=1
-
-# Use vim keys in tab complete menu:
-bindkey -M menuselect '^h' vi-backward-char
-bindkey -M menuselect '^k' vi-up-line-or-history
-bindkey -M menuselect '^l' vi-forward-char
-bindkey -M menuselect '^j' vi-down-line-or-history
-
+# Load secrets if present
 test -f "${ZDOTDIR}/secrets" && source "${ZDOTDIR}/secrets"
 
-if [ -z "$SSH_AUTH_SOCK" ] ; then
-    eval `ssh-agent -s`
-    ssh-add
+# Load `starship` shell prompt
+eval "$(starship init zsh)"
+
+# Load helper functions
+source "${ZDOTDIR}/zsh-functions"
+
+# ----- Plugins -----
+
+# zsh-completions
+if type brew &>/dev/null; then
+    FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
+
+    zmodload zsh/complist # Load zsh completion module
+
+    # Completion menu keybinds
+    bindkey -M menuselect '^h' vi-backward-char
+    bindkey -M menuselect '^k' vi-up-line-or-history
+    bindkey -M menuselect '^l' vi-forward-char
+    bindkey -M menuselect '^j' vi-down-line-or-history
+    bindkey "^ " autosuggest-accept # Trigger completion
+
+    autoload -Uz compinit; compinit # Initialize completion
+    _comp_options+=(globdots) # Include hidden files
 fi
 
-export NVM_DIR="$HOME/.config/nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+# zsh-autosuggestions
+ZSH_AUTOSUGGEST_STRATEGY=(history completion match_prev_cmd)
 
-# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-path+=("$HOME/.rvm/bin")
+# zsh-history-substring-search
+bindkey '^p' history-substring-search-up
+bindkey '^n' history-substring-search-down
 
-path+=("$HOME/.local/bin")
+zsh_add_plugin "zsh-autosuggestions"
+zsh_add_plugin "zsh-syntax-highlighting" # must load last
+zsh_add_plugin "zsh-history-substring-search" # must load after zsh-syntax-highlighting
 
-path+="$(yarn global bin)"
-
-path+=("$HOME/go/bin")
-
-export PATH
-
-# bun completions
-[ -s "/Users/thebriankwon/.bun/_bun" ] && source "/Users/thebriankwon/.bun/_bun"
-
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
-
-eval "$(starship init zsh)"
-eval "$(mise activate zsh)"
-export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+eval "$(~/.local/bin/mise activate zsh)"
