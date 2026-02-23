@@ -18,11 +18,16 @@ return {
 			})
 		end
 
+		local git_buffer_commits = function()
+			builtin.git_bcommits({ git_command = { "git", "log", "--pretty=format:%h (%cr by %an) %s%n" } })
+		end
+
 		vim.keymap.set("n", "<C-p>", builtin.git_files, {})
 
 		vim.keymap.set("n", "<leader>ff", builtin.find_files, {})
 		vim.keymap.set("n", "<leader>fg", builtin.live_grep, {})
 		vim.keymap.set("n", "<leader>df", search_dotfiles, {})
+		vim.keymap.set("n", "<leader>gc", git_buffer_commits, {})
 
 		vim.keymap.set("n", "<leader>vh", builtin.help_tags, {})
 

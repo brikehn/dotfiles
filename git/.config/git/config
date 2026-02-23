@@ -7,7 +7,7 @@
 [include]
     path = ~/.config/git/ssh
 [alias]
-    lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset [%an]' --abbrev-commit --date=relative
+    lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset [%an]'
     st = status --short --branch -M
     co = checkout
     cm    = commit -m
@@ -25,4 +25,4 @@
 [init]
     defaultBranch = main
 [url "ssh://git@github.com/"]
-	insteadOf = https://github.com/
+    insteadOf = https://github.com/
