@@ -11,10 +11,10 @@ return {
 		local actions = require("telescope.actions")
 
 		local search_dotfiles = function()
-			builtin.find_files({
+			builtin.git_files({
 				prompt_title = "Dotfiles",
 				cwd = vim.env.DOTFILES,
-				hidden = true,
+				show_untracked = true,
 			})
 		end
 

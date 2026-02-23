@@ -11,4 +11,4 @@ zsh/.config/zsh/secrets
 
 git/.config/git/ssh
 
-tmux/.config/tmux/plugins/tmux*
+tmux/.config/tmux/plugins
