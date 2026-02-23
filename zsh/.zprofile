@@ -13,7 +13,7 @@ export ZDOTDIR="${XDG_CONFIG_HOME:-$HOME/.config}/zsh"
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # Load `mise`
-eval "$(~/.local/bin/mise activate zsh)"
+eval "$(/opt/homebrew/bin/mise activate zsh)"
 
 # Load `starship` shell prompt
 eval "$(starship init zsh)"
