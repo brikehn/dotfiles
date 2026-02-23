@@ -27,8 +27,8 @@ fi
 # Load secrets if present
 test -f "${ZDOTDIR}/secrets" && source "${ZDOTDIR}/secrets"
 
-# Load `starship` shell prompt
-eval "$(starship init zsh)"
+# Load work-related config if present
+test -f "${ZDOTDIR}/work" && source "${ZDOTDIR}/work"
 
 # Load helper functions
 source "${ZDOTDIR}/zsh-functions"
@@ -62,5 +62,3 @@ bindkey '^n' history-substring-search-down
 zsh_add_plugin "zsh-autosuggestions"
 zsh_add_plugin "zsh-syntax-highlighting" # must load last
 zsh_add_plugin "zsh-history-substring-search" # must load after zsh-syntax-highlighting
-
-eval "$(~/.local/bin/mise activate zsh)"

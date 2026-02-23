@@ -8,6 +8,7 @@ zsh/.config/zsh/.zcompcache
 zsh/.config/zsh/.zsh_history
 zsh/.config/zsh/.zsh_sessions
 zsh/.config/zsh/secrets
+zsh/.config/zsh/work
 
 git/.config/git/ssh
 
