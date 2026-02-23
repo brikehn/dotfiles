@@ -30,6 +30,15 @@ test -f "${ZDOTDIR}/secrets" && source "${ZDOTDIR}/secrets"
 # Load work-related config if present
 test -f "${ZDOTDIR}/work" && source "${ZDOTDIR}/work"
 
+# Load `brew`
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# Load `mise`
+eval "$(/opt/homebrew/bin/mise activate zsh)"
+
+# Load `starship` shell prompt
+eval "$(starship init zsh)"
+
 # Load helper functions
 source "${ZDOTDIR}/zsh-functions"
 
