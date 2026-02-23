@@ -8,3 +8,4 @@ window-padding-y = 8
 macos-titlebar-style = tabs
 bell-features = no-title, no-attention
 maximize = true
+initial-command=/bin/zsh -c 'tmux attach || tmux'
