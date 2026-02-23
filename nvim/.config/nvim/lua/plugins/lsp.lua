@@ -100,7 +100,6 @@ return {
 				"efm",
 				vim.tbl_extend("force", efmls_config, {
 					cmd = { "efm-langserver" },
-					-- capabilities = capabilities,
 				})
 			)
 
