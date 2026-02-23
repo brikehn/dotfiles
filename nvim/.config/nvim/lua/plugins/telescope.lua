@@ -1,12 +1,12 @@
 return {
 	"nvim-telescope/telescope.nvim",
-	tag = "0.1.8",
+	version = "*",
 	dependencies = {
 		"nvim-lua/plenary.nvim",
 		"nvim-telescope/telescope-ui-select.nvim",
 		{ "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
 	},
-	config = function()
+	opts = function()
 		local builtin = require("telescope.builtin")
 		local actions = require("telescope.actions")
 
@@ -18,7 +18,18 @@ return {
 			})
 		end
 
-		require("telescope").setup({
+		vim.keymap.set("n", "<C-p>", builtin.git_files, {})
+
+		vim.keymap.set("n", "<leader>ff", builtin.find_files, {})
+		vim.keymap.set("n", "<leader>fg", builtin.live_grep, {})
+		vim.keymap.set("n", "<leader>df", search_dotfiles, {})
+
+		vim.keymap.set("n", "<leader>vh", builtin.help_tags, {})
+
+		require("telescope").load_extension("fzf")
+		require("telescope").load_extension("ui-select")
+
+		return {
 			defaults = {
 				mappings = {
 					i = {
@@ -38,17 +49,6 @@ return {
 					}),
 				},
 			},
-		})
-
-		vim.keymap.set("n", "<C-p>", builtin.git_files, {})
-
-		vim.keymap.set("n", "<leader>ff", builtin.find_files, {})
-		vim.keymap.set("n", "<leader>fg", builtin.live_grep, {})
-		vim.keymap.set("n", "<leader>df", search_dotfiles, {})
-
-		vim.keymap.set("n", "<leader>vh", builtin.help_tags, {})
-
-		require("telescope").load_extension("fzf")
-		require("telescope").load_extension("ui-select")
+		}
 	end,
 }

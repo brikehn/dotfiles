@@ -3,22 +3,20 @@ return {
 		"zbirenbaum/copilot.lua",
 		cmd = "Copilot",
 		event = "InsertEnter",
-		opts = function()
-			return {
-				filetypes = {
-					markdown = true,
+		opts = {
+			filetypes = {
+				markdown = true,
+			},
+			suggestion = {
+				auto_trigger = true,
+				keymap = {
+					accept = "<C-l>",
+					next = "<C-]>",
+					prev = "<C-[>",
+					dismiss = "<C-\\>",
 				},
-				suggestion = {
-					auto_trigger = true,
-					keymap = {
-						accept = "<C-l>",
-						next = "<C-]>",
-						prev = "<C-[>",
-						dismiss = "<C-\\>",
-					},
-				},
-			}
-		end,
+			},
+		},
 	},
 	{
 		"hrsh7th/nvim-cmp",

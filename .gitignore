@@ -4,6 +4,7 @@ nvim/.config/nvim/plugin/packer_compiled.lua
 nvim/.config/nvim/lazy-lock.json
 
 zsh/.config/zsh/.zcompdump
+zsh/.config/zsh/.zcompcache
 zsh/.config/zsh/.zsh_history
 zsh/.config/zsh/.zsh_sessions
 zsh/.config/zsh/secrets
