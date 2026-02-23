@@ -9,7 +9,14 @@ export XDG_CACHE_HOME="$HOME/.cache"
 # Zsh config location
 export ZDOTDIR="${XDG_CONFIG_HOME:-$HOME/.config}/zsh"
 
+# Load `brew`
 eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# Load `mise`
+eval "$(~/.local/bin/mise activate zsh)"
+
+# Load `starship` shell prompt
+eval "$(starship init zsh)"
 
 # For colorful completions
 export CLICOLOR=1 
