@@ -31,14 +31,6 @@ return {
 				mode = "i",
 				desc = "Signature Help",
 			},
-			-- {
-			-- 	"gq",
-			-- 	function()
-			-- 		return vim.lsp.buf.format({ timeout_ms = 10000 })
-			-- 	end,
-			-- 	mode = { "n", "x" },
-			-- 	desc = "Format Document",
-			-- },
 		},
 		opts = function()
 			vim.lsp.config("lua_ls", {
