@@ -6,7 +6,7 @@ return {
 		"nvim-telescope/telescope-ui-select.nvim",
 		{ "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
 	},
-	opts = function()
+	config = function()
 		local builtin = require("telescope.builtin")
 		local actions = require("telescope.actions")
 
@@ -31,10 +31,7 @@ return {
 
 		vim.keymap.set("n", "<leader>vh", builtin.help_tags, {})
 
-		require("telescope").load_extension("fzf")
-		require("telescope").load_extension("ui-select")
-
-		return {
+		require('telescope').setup({
 			defaults = {
 				mappings = {
 					i = {
@@ -49,11 +46,14 @@ return {
 				["ui-select"] = {
 					require("telescope.themes").get_dropdown({
 						layout_config = {
-							width = 120,
+							width = 80,
 						},
 					}),
 				},
 			},
-		}
+		})
+
+		require("telescope").load_extension("fzf")
+		require("telescope").load_extension("ui-select")
 	end,
 }

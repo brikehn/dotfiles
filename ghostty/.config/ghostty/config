@@ -1,5 +1,6 @@
 theme = Rose Pine Dawn
-font-family = JetBrainsMono Nerd Font Mono
+# font-family = JetBrainsMono Nerd Font Mono
+font-family = Lilex Nerd Font
 font-size = 14
 window-padding-x = 8
 window-padding-y = 8

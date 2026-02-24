@@ -31,78 +31,16 @@ return {
 				mode = "i",
 				desc = "Signature Help",
 			},
-			{
-				"gq",
-				function()
-					return vim.lsp.buf.format({ timeout_ms = 10000 })
-				end,
-				mode = { "n", "x" },
-				desc = "Format Document",
-			},
+			-- {
+			-- 	"gq",
+			-- 	function()
+			-- 		return vim.lsp.buf.format({ timeout_ms = 10000 })
+			-- 	end,
+			-- 	mode = { "n", "x" },
+			-- 	desc = "Format Document",
+			-- },
 		},
-		opts = function(_, opts)
-			-- Linters
-			local checkmake = require("efmls-configs.linters.checkmake")
-			local eslint = require("efmls-configs.linters.eslint_d")
-			local flake8 = require("efmls-configs.linters.flake8")
-			local golangci_lint = require("efmls-configs.linters.golangci_lint")
-			local hadolint = require("efmls-configs.linters.hadolint")
-			local jsonlint = require("efmls-configs.linters.jsonlint")
-			local luacheck = require("efmls-configs.linters.luacheck")
-			local markdownlint = require("efmls-configs.linters.markdownlint")
-			local rubocopLint = require("efmls-configs.linters.rubocop")
-			local stylelint = require("efmls-configs.linters.stylelint")
-			local yamllint = require("efmls-configs.linters.yamllint")
-
-			-- Formatters
-			local autopep8 = require("efmls-configs.formatters.autopep8")
-			local gofmt = require("efmls-configs.formatters.gofmt")
-			local prettier = require("efmls-configs.formatters.prettier")
-			local rubocopFormat =
-				{ formatCommand = "bundle exec rubocop -A -f quiet --stderr -s ${INPUT}", formatStdin = true }
-			local stylua = require("efmls-configs.formatters.stylua")
-
-			local languages = require("efmls-configs.defaults").languages()
-			languages = vim.tbl_extend("force", languages, {
-				-- Custom languages, or override existing ones
-				css = { stylelint, prettier },
-				docker = { hadolint },
-				go = { golangci_lint, gofmt },
-				graphql = { prettier },
-				html = { stylelint, prettier },
-				javascript = { eslint, prettier },
-				javascriptreact = { eslint, prettier },
-				json = { jsonlint, prettier },
-				jsonc = { jsonlint, prettier },
-				lua = { luacheck, stylua },
-				make = { checkmake },
-				markdown = { markdownlint, prettier },
-				python = { flake8, autopep8 },
-				ruby = { rubocopLint, rubocopFormat },
-				typescript = { eslint, prettier },
-				typescriptreact = { eslint, prettier },
-				yaml = { yamllint, prettier },
-			})
-
-			local efmls_config = {
-				filetypes = vim.tbl_keys(languages),
-				settings = {
-					rootMarkers = { ".git/" },
-					languages = languages,
-				},
-				init_options = {
-					documentFormatting = true,
-					documentRangeFormatting = true,
-				},
-			}
-
-			vim.lsp.config(
-				"efm",
-				vim.tbl_extend("force", efmls_config, {
-					cmd = { "efm-langserver" },
-				})
-			)
-
+		opts = function()
 			vim.lsp.config("lua_ls", {
 				settings = {
 					Lua = {
@@ -119,14 +57,92 @@ return {
 					},
 				},
 			})
-
-			opts.ensure_installed = { "efm" }
 		end,
 		dependencies = {
-			{ "creativenull/efmls-configs-nvim", version = "v1.10.1" },
 			{ "mason-org/mason.nvim", opts = {} },
 			"neovim/nvim-lspconfig",
 		},
+	},
+	{
+		"stevearc/conform.nvim",
+		events = { "BufReadPre", "BufNewFile" },
+		keys = {
+			{
+				"gq",
+				function()
+					require("conform").format({ async = false }, function(err)
+						if not err then
+							local mode = vim.api.nvim_get_mode().mode
+							if vim.startswith(string.lower(mode), "v") then
+								vim.api.nvim_feedkeys(
+									vim.api.nvim_replace_termcodes("<Esc>", true, false, true),
+									"n",
+									true
+								)
+							end
+						end
+					end)
+				end,
+				mode = { "n", "v" },
+				desc = "Format code",
+			},
+		},
+		opts = function()
+			vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
+
+			return {
+				formatters_by_ft = {
+					css = { "prettier" },
+					go = { "gofmt" },
+					graphql = { "prettier" },
+					html = { "prettier" },
+					javascript = { "prettier" },
+					javascriptreact = { "prettier" },
+					json = { "prettier" },
+					lua = { "stylua" },
+					markdown = { "prettier" },
+					ruby = { "rubocop" },
+					typescript = { "prettier" },
+					typescriptreact = { "prettier" },
+					yaml = { "prettier" },
+				},
+			}
+		end,
+	},
+	{
+		"mfussenegger/nvim-lint",
+		event = { "BufReadPre", "BufNewFile" },
+		config = function()
+			local lint = require("lint")
+			lint.linters_by_ft = {
+				css = { "stylelint" },
+				docker = { "hadolint" },
+				go = { "golangcilint" },
+				html = { "stylelint" },
+				javascript = { "eslint_d" },
+				javascriptreact = { "eslint_d" },
+				json = { "jsonlint" },
+				lua = { "luacheck" },
+				make = { "checkmake" },
+				markdown = { "markdownlint" },
+				ruby = { "rubocop" },
+				typescript = { "eslint_d" },
+				typescriptreact = { "eslint_d" },
+				yaml = { "yamllint" },
+			}
+
+			local lint_augroup = vim.api.nvim_create_augroup("lint", { clear = true })
+			vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "InsertLeave" }, {
+				group = lint_augroup,
+				callback = function()
+					lint.try_lint()
+				end,
+			})
+
+			local luacheck = lint.linters.luacheck
+			-- Add vim globals support to nvim-lint luacheck args
+			luacheck.args = { "--formatter", "plain", "--codes", "--ranges", "--globals", "vim", "reload", "--" }
+		end,
 	},
 	{
 		"dnlhc/glance.nvim",
