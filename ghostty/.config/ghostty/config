@@ -1,7 +1,5 @@
 theme = Rose Pine Dawn
-# font-family = JetBrainsMono Nerd Font Mono
-font-family = Lilex Nerd Font
-font-size = 14
+font-family = JetBrainsMono Nerd Font Mono
 window-padding-x = 8
 window-padding-y = 8
 # macos-titlebar-proxy-icon = hidden
