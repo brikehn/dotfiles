@@ -49,6 +49,23 @@ return {
 					},
 				},
 			})
+			vim.lsp.config("tailwindcss", {
+				settings = {
+					tailwindCSS = {
+						classFunctions = {
+							"Merge",
+							"Merge",
+							"tailwind\\.Merge",
+						},
+						experimental = {
+							classRegex = {
+								"Merge\\(([^)]*)\\)",
+								"tailwind\\.Merge\\(([^)]*)\\)",
+							},
+						},
+					},
+				},
+			})
 		end,
 		dependencies = {
 			{ "mason-org/mason.nvim", opts = {} },
@@ -94,6 +111,8 @@ return {
 					lua = { "stylua" },
 					markdown = { "prettier" },
 					ruby = { "rubocop" },
+					templ = { "templ", "rustywind" },
+					toml = { "taplo" },
 					typescript = { "prettier" },
 					typescriptreact = { "prettier" },
 					yaml = { "prettier" },
@@ -116,11 +135,10 @@ return {
 				json = { "jsonlint" },
 				lua = { "luacheck" },
 				make = { "checkmake" },
-				markdown = { "markdownlint" },
 				ruby = { "rubocop" },
 				typescript = { "eslint_d" },
 				typescriptreact = { "eslint_d" },
-				yaml = { "yamllint" },
+				yaml = { "actionlint" },
 			}
 
 			local lint_augroup = vim.api.nvim_create_augroup("lint", { clear = true })
