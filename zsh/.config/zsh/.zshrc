@@ -15,6 +15,10 @@ zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
 
 alias vim="nvim"
 
+# ----- Helpers -----
+
+killport() { lsof -ti tcp:"$1" | xargs -r kill; }
+
 # Pretty `ls`
 if [[ "$OSTYPE" == "darwin"* ]]; then
   alias ls="ls -FG"
