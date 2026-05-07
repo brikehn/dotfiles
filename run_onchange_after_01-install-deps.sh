@@ -43,3 +43,6 @@ esac
 # Mise tools (go, node, neovim, etc.)
 MISE=$(command -v mise 2>/dev/null || echo "${HOME}/.local/bin/mise")
 "$MISE" install
+
+# Remove bootstrap chezmoi binary — mise manages it now
+rm -f "$HOME/.local/bin/chezmoi"
