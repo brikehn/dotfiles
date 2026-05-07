@@ -25,7 +25,8 @@ When unsure about chezmoi behavior, fetch the relevant doc above rather than gue
 
 - **Never edit `~` config files directly.** Always edit `~/.local/share/chezmoi/` source, then apply.
 - **Always apply after editing.** Scope `chezmoi apply --force` to only the changed target path.
-- **chezmoi runs via mise.** Use `mise exec chezmoi -- chezmoi <cmd>` — bare `chezmoi` is not in PATH.
+- **Never manually commit or push on personal machines.** `chezmoi apply` auto-commits and auto-pushes. Manual `git commit`/`git push` in the chezmoi source dir is redundant and wrong.
+- **chezmoi aliased to `dotf` in interactive shell.** Use `chezmoi <cmd>` in instructions. In scripts or non-interactive contexts use `~/.local/bin/chezmoi` if mise shims aren't active yet.
 
 ## Source Naming
 
@@ -110,30 +111,39 @@ font_installed() {
 font_installed IosevkaTermNerdFont || brew install --cask font-iosevka-term-nerd-font
 ```
 
+## Auto Commit / Push (personal machines only)
+
+`.chezmoi.toml.tmpl` enables `autoCommit = true` and `autoPush = true` when `isWork = false`. On personal machines, `chezmoi apply` automatically commits and pushes source changes — no manual `git commit` or `git push` needed.
+
+On work machines (`isWork = true`), auto-commit/push is disabled. Commit and push manually when needed.
+
 ## Workflow for Any Change
 
 1. Edit source in `~/.local/share/chezmoi/`.
-2. `mise exec chezmoi -- chezmoi apply --force <target-path>` (scope to changed file/dir).
+2. `chezmoi apply --force <target-path>` (scope to changed file/dir).
 3. Confirm live file updated.
-4. Commit in `~/.local/share/chezmoi/`.
+4. **Personal:** done — apply auto-committed and pushed. **Work:** `git commit` + `git push` manually.
 
 ## Common Commands
 
 ```sh
 # Apply all
-mise exec chezmoi -- chezmoi apply --force
+chezmoi apply --force
 
 # Apply scoped (prefer this)
-mise exec chezmoi -- chezmoi apply --force ~/.config/nvim
+chezmoi apply --force ~/.config/nvim
 
 # Preview changes without applying
-mise exec chezmoi -- chezmoi diff
+chezmoi diff
 
 # Find source file for a target
-mise exec chezmoi -- chezmoi source-path ~/.zprofile
+chezmoi source-path ~/.zprofile
 
 # Verify installation
-mise exec chezmoi -- chezmoi doctor
+chezmoi doctor
+
+# Pull remote changes and apply
+chezmoi update
 ```
 
 ## Bootstrap (new machine)
