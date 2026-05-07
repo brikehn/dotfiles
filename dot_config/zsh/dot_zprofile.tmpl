@@ -1,0 +1,6 @@
+{{- if eq .chezmoi.os "linux" }}
+if [ -f "$HOME/.ssh/id_ed25519" ]; then
+    eval "$(ssh-agent -s)" >/dev/null
+    ssh-add "$HOME/.ssh/id_ed25519"
+fi
+{{- end }}
