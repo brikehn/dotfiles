@@ -1,0 +1,34 @@
+[user]
+    name = brikehn
+    email = {{ .email }}
+{{- if and (not .isWork) (eq .chezmoi.os "darwin") }}
+[user]
+    signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILQdRzVk/CwAyMkQJDSZZbPAfkb91PDdbVJF494+Uaf8
+[commit]
+    gpgsign = true
+[gpg]
+    format = ssh
+[gpg "ssh"]
+    program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+    allowedSignersFile = ~/.config/git/allowed_signers
+{{- end }}
+[alias]
+    lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset [%an]'
+    st = status --short --branch -M
+    co = checkout
+    cm    = commit -m
+    br    = branch
+    d     = diff
+    pl    = pull
+    pu    = push
+    a     = add
+    ac    = !git add . && git commit -m
+    undo  = reset --soft HEAD~1
+[pull]
+    rebase = true
+[core]
+    editor = nvim
+[init]
+    defaultBranch = main
+[url "ssh://git@github.com/"]
+    insteadOf = https://github.com/
