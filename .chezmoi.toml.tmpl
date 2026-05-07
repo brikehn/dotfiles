@@ -1,6 +1,6 @@
 [data]
-    isWork = {{ promptBoolOnce "isWork" "Work machine" false }}
-    email = "{{ promptStringOnce "email" "Email" "thebriankwon@gmail.com" }}"
+    isWork = {{ promptBoolOnce . "isWork" "Work machine" }}
+    email = "{{ promptStringOnce . "email" "Email" "thebriankwon@gmail.com" }}"
 
 [merge]
     command = "nvim"
