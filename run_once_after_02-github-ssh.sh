@@ -2,6 +2,8 @@
 # One-time GitHub auth setup
 set -e
 
+export PATH="$HOME/.local/share/mise/shims:$PATH"
+
 if [ "$(uname -s)" = "Darwin" ]; then
     if ! gh auth status >/dev/null 2>&1; then
         gh auth login --git-protocol ssh
