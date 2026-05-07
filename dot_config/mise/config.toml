@@ -22,6 +22,9 @@ gh = "latest"
 claude = "latest"
 codex = "latest"
 
+# dotfiles
+chezmoi = "latest"
+
 [settings]
 trusted_config_paths = [
 	'~/projects',
