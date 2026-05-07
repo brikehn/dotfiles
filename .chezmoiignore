@@ -35,4 +35,5 @@ README.md
 .claude/settings.local.json
 {{ if .isWork }}
 .claude/statusline-command.sh
+.claude/settings.json
 {{ end }}
