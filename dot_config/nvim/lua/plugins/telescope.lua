@@ -31,7 +31,7 @@ return {
 
 		vim.keymap.set("n", "<leader>vh", builtin.help_tags, {})
 
-		require('telescope').setup({
+		require("telescope").setup({
 			defaults = {
 				mappings = {
 					i = {
