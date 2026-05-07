@@ -1,0 +1,12 @@
+[data]
+    isWork = {{ promptBoolOnce "Work machine" false }}
+    email = "{{ promptStringOnce "Email" "thebriankwon@gmail.com" }}"
+
+[merge]
+    command = "nvim"
+    args = [
+        "-d",
+        {{ printf "%q" "{{ .Destination }}" }},
+        {{ printf "%q" "{{ .Source }}" }},
+        {{ printf "%q" "{{ .Target }}" }},
+    ]
