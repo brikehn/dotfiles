@@ -34,7 +34,7 @@ Sets zsh as default shell — takes effect on next login.
 After bootstrap completes, reload the shell:
 
 ```sh
-exec zsh
+exec zsh -l
 ```
 
 ---
@@ -45,7 +45,7 @@ Prereqs already installed (curl, git, brew/apt). Just install chezmoi and apply:
 
 ```sh
 sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin" init --apply brikehn
-exec zsh
+exec zsh -l
 ```
 
 ## Maintenance
