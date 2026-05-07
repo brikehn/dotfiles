@@ -1,0 +1,25 @@
+# Default programs
+export EDITOR="nvim"
+
+# Environment variables
+{{- if eq .chezmoi.os "darwin" }}
+export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+{{- else if eq .chezmoi.os "linux" }}
+if [ -f "$HOME/.ssh/id_ed25519" ]; then
+    eval "$(ssh-agent -s)" >/dev/null
+    ssh-add "$HOME/.ssh/id_ed25519"
+fi
+{{- end }}
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_CACHE_HOME="$HOME/.cache"
+
+# Zsh config location
+export ZDOTDIR="${XDG_CONFIG_HOME:-$HOME/.config}/zsh"
+
+# For colorful completions
+export CLICOLOR=1 
+export LSCOLORS=ExGxBxDxCxEgEdxbxgxcxd
+export LS_COLORS='no=00;37:fi=00:di=00;33:ln=04;36:pi=40;33:so=01;35:bd=40;33;01:'
+
+export DOTFILES="${XDG_DATA_HOME:-$HOME/.local/share}/chezmoi"
