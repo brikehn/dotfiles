@@ -74,7 +74,7 @@ git worktree add ../anthology/main main
 | `Enter` | Switch to selected entry (or pick branch for repos) |
 | `ctrl-r` | Refresh GitHub repo cache |
 | `ctrl-x` | Kill selected session (does not delete worktree) |
-| `ctrl-d` | Delete selected worktree (checks for uncommitted changes) |
+| `ctrl-d` | Delete worktree (also deletes branch if it's local-only) |
 | `Esc` / `ctrl-c` | Close picker |
 
 ### Picker Entries
@@ -141,6 +141,9 @@ The picker fetches branches from the remote if they don't exist locally yet.
 - Checks for uncommitted changes first (staged, unstaged, untracked)
 - Shows 5-second error if changes exist
 - Runs `git worktree remove` if clean
+- **Smart branch cleanup**: Also deletes the local branch if it exists on remote (safe, can fetch back)
+  - Branch on remote → deletes both worktree and local branch (can fetch back anytime)
+  - Local-only branch → deletes worktree only, keeps branch (would lose it forever)
 - Picker closes (reopen with `prefix+f` to see updated list)
 - Only works on worktree entries (shows "not a worktree" for others)
 

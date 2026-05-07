@@ -8,7 +8,7 @@
 #   Enter       Switch to session/worktree or pick branch for repos
 #   ctrl-r      Refresh GitHub repo cache
 #   ctrl-x      Kill selected session (keeps worktree)
-#   ctrl-d      Delete selected worktree (checks for uncommitted changes)
+#   ctrl-d      Delete worktree (also deletes local branch if on remote)
 #
 # SETUP:
 #   See ~/.config/tmux/SESSION_SWITCHER.md for full documentation.
@@ -206,6 +206,7 @@ kill_session() {
 
 delete_worktree() {
   # Deletes a worktree after checking for uncommitted changes (ctrl-d).
+  # Also deletes the branch if it doesn't exist on remote (local-only branch).
   local label="$1" kind="$2" payload="$3"
 
   if [[ "$kind" != "worktree" ]]; then
@@ -215,7 +216,9 @@ delete_worktree() {
 
   # Worktree path: ~/repos/<org>/<repo>/<branch>
   # Bare path: ~/repos/<org>/<repo>.git
+  # Branch name: extract from label (repo@branch)
   local bare="${payload%/*}.git"
+  local branch="${label##*@}"
 
   if [[ ! -d "$payload" ]]; then
     # Directory is gone but metadata exists — force remove or prune it.
@@ -227,7 +230,18 @@ delete_worktree() {
         return 1
       fi
     fi
-    tmux display-message "pruned orphaned worktree: $label"
+    # Check if branch exists on remote.
+    local branch_on_remote=0
+    if git -C "$bare" ls-remote --heads origin "$branch" 2>/dev/null | grep -q "$branch"; then
+      branch_on_remote=1
+    fi
+    # Delete branch if it exists on remote (safe, can fetch back).
+    if [[ $branch_on_remote -eq 1 ]]; then
+      git -C "$bare" branch -D "$branch" 2>/dev/null || true
+      tmux display-message "pruned orphaned worktree and deleted local branch (exists on remote): $label"
+    else
+      tmux display-message "pruned orphaned worktree (kept local-only branch): $label"
+    fi
     return 0
   fi
 
@@ -243,7 +257,21 @@ delete_worktree() {
     tmux display-message -d 5000 "worktree remove failed: $label"
     return 1
   fi
-  tmux display-message "deleted worktree: $label"
+
+  # Check if branch exists on remote.
+  local branch_on_remote=0
+  if git -C "$bare" ls-remote --heads origin "$branch" 2>/dev/null | grep -q "$branch"; then
+    branch_on_remote=1
+  fi
+
+  # Delete branch if it exists on remote (safe, can fetch back).
+  # Keep branch if it's local-only (would lose it forever).
+  if [[ $branch_on_remote -eq 1 ]]; then
+    git -C "$bare" branch -D "$branch" 2>/dev/null || true
+    tmux display-message "deleted worktree and local branch (exists on remote): $label"
+  else
+    tmux display-message "deleted worktree (kept local-only branch): $label"
+  fi
 }
 
 branch_picker() {
@@ -329,15 +357,20 @@ branch_picker() {
       fi
     fi
 
-    if [[ $branch_exists_remotely -eq 1 ]]; then
-      # Branch exists remotely — check it out.
+    # Check if branch exists locally (might be orphaned from deleted worktree).
+    local branch_exists_locally=0
+    if git -C "$bare" rev-parse --verify "$branch" >/dev/null 2>&1; then
+      branch_exists_locally=1
+    fi
+
+    if [[ $branch_exists_remotely -eq 1 ]] || [[ $branch_exists_locally -eq 1 ]]; then
+      # Branch exists (remotely or locally) — check it out.
       if ! err=$(git -C "$bare" worktree add "$wt_path" "$branch" 2>&1); then
         tmux display-message -d 5000 "worktree add failed: ${err##*$'\n'}"
         return 1
       fi
     else
-      # Branch doesn't exist — create it from the default branch.
-      # Determine the default branch by trying common names.
+      # Branch doesn't exist anywhere — create it from the default branch.
       local base_ref=""
       for candidate in origin/main origin/master origin/develop main master; do
         if git -C "$bare" rev-parse --verify "$candidate" >/dev/null 2>&1; then
@@ -401,6 +434,7 @@ main() {
     delete_worktree "$@"
     return $?
   fi
+
 
   local entries
   entries=$("$ZSH_ARGZERO" --emit-entries)
