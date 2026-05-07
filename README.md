@@ -2,7 +2,7 @@
 
 Managed by [chezmoi](https://www.chezmoi.io/). Tools via [mise](https://mise.jdx.dev/).
 
-**Setup:** See [SETUP.md](SETUP.md) for new machine bootstrap and first-time installation.
+See [SETUP.md](SETUP.md) for new machine bootstrap and first-time installation.
 
 ## Quick Start
 
@@ -15,7 +15,7 @@ exec zsh -l
 
 ### Existing machine
 
-Requires: curl, git, brew (macOS) or apt (Linux)
+Prerequisites: `curl`, `git`, `brew` (macOS)
 
 ```sh
 sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin" init --apply brikehn
@@ -62,4 +62,4 @@ Unified session + git worktree picker. Open with `prefix+f`.
 | `ctrl-x` | Kill session (keeps worktree)                        |
 | `ctrl-d` | Delete worktree (smart: deletes branch if on remote) |
 
-**Full docs:** [dot_config/tmux/SESSION_SWITCHER.md](dot_config/tmux/SESSION_SWITCHER.md)
+More info: [SESSION_SWITCHER.md](dot_config/tmux/SESSION_SWITCHER.md)
