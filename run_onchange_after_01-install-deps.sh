@@ -2,6 +2,9 @@
 # Install dependencies: packages, fonts, plugins, mise tools.
 set -e
 
+log() { printf '\033[1;34m==> %s\033[0m\n' "$*"; }
+ok()  { printf '\033[1;32m    ✓ %s\033[0m\n' "$*"; }
+
 if [ "$(id -u)" -eq 0 ]; then
 	SUDO=""
 elif command -v sudo >/dev/null 2>&1; then
@@ -11,24 +14,38 @@ else
 fi
 
 brew_install() {
-	command -v "$1" >/dev/null 2>&1 || brew install "$1"
+	if command -v "$1" >/dev/null 2>&1; then
+		ok "$1 already installed"
+	else
+		brew install "$2"
+		ok "$1 installed"
+	fi
 }
 
-# Packages
 case "$(uname -s)" in
 Darwin)
 	case "$(uname -m)" in
 	arm64) eval "$(/opt/homebrew/bin/brew shellenv)" ;;
 	x86_64) eval "$(/usr/local/bin/brew shellenv)" ;;
 	esac
-	brew_install jq
-	command -v op >/dev/null 2>&1 || brew install 1password-cli
-	brew_install tmux
-	brew_install luarocks
-	ls "$HOME/Library/Fonts/IosevkaTermNerdFont"* >/dev/null 2>&1 || brew install --cask font-iosevka-term-nerd-font
+
+	log "Installing brew packages"
+	brew_install jq jq
+	brew_install op 1password-cli
+	brew_install tmux tmux
+	brew_install luarocks luarocks
+
+	log "Installing fonts"
+	if ls "$HOME/Library/Fonts/IosevkaTermNerdFont"* >/dev/null 2>&1; then
+		ok "IosevkaTermNerdFont already installed"
+	else
+		brew install --cask font-iosevka-term-nerd-font
+		ok "IosevkaTermNerdFont installed"
+	fi
 	;;
 Linux)
-	$SUDO apt-get update
+	log "Installing apt packages"
+	$SUDO apt-get update -q
 	$SUDO apt-get install -y \
 		jq \
 		libssl-dev \
@@ -37,12 +54,15 @@ Linux)
 		tmux \
 		unzip \
 		xz-utils
+	ok "apt packages installed"
 	;;
 esac
 
-# Mise tools (go, node, neovim, etc.)
+log "Installing mise tools"
 MISE=$(command -v mise 2>/dev/null || echo "${HOME}/.local/bin/mise")
 "$MISE" install
+ok "mise tools installed"
 
-# Remove bootstrap chezmoi binary — mise manages it now
+log "Cleaning up bootstrap chezmoi binary"
 rm -f "$HOME/.local/bin/chezmoi"
+ok "done"
