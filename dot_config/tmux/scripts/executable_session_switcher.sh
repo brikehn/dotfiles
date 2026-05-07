@@ -111,12 +111,14 @@ build_entries() {
   done <<< "$local_repos"
 
   # Pass 1: all sessions, MRU at top. Label prefers worktree label when available.
-  # Track which worktree paths already have a session so Pass 2 can skip them.
+  # Track which worktree paths and session names already have a session so Pass 2 can skip them.
   typeset -A linked_worktree_paths
+  typeset -A active_session_names
   local session_lines=""
   local name s_path activity display
   while IFS=$'\t' read -r name s_path activity; do
     [[ -z "$name" ]] && continue
+    active_session_names[$name]=1
     if [[ -n "${worktree_label_by_path[$s_path]:-}" ]]; then
       display="${worktree_label_by_path[$s_path]}"
       linked_worktree_paths[$s_path]=1
@@ -143,10 +145,11 @@ build_entries() {
     mixed_lines+="${wlabel}"$'\t'"worktree"$'\t'"${wpath}"$'\n'
   done <<< "$worktrees"
 
-  # Dotfiles directory (chezmoi source).
+  # Dotfiles directory (chezmoi source) — skip if already has a session.
   local df_label df_path
   while IFS=$'\t' read -r df_label df_path; do
     [[ -z "$df_label" ]] && continue
+    [[ -n "${active_session_names[$df_label]:-}" ]] && continue
     mixed_lines+="${df_label}"$'\t'"dotfiles"$'\t'"${df_path}"$'\n'
   done <<< "$dotfiles"
 
