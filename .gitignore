@@ -1,15 +1,11 @@
-.DS_Store
+# Chezmoi-managed ignores (machine-local / generated)
+dot_config/nvim/lazy-lock.json
+dot_config/nvim/plugin/
 
-nvim/.config/nvim/plugin/packer_compiled.lua
-nvim/.config/nvim/lazy-lock.json
-
-zsh/.config/zsh/.zcompdump
-zsh/.config/zsh/.zcompcache
-zsh/.config/zsh/.zsh_history
-zsh/.config/zsh/.zsh_sessions
-zsh/.config/zsh/secrets
-zsh/.config/zsh/work
-
-git/.config/git/ssh
-
-tmux/.config/tmux/plugins
+# Machine-specific (managed via .chezmoiignore, never committed)
+dot_config/zsh/secrets
+dot_config/zsh/work
+dot_config/zsh/.zcompdump
+dot_config/zsh/.zcompcache
+dot_config/zsh/.zsh_history
+dot_config/zsh/.zsh_sessions

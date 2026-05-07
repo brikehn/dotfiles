@@ -1,0 +1,36 @@
+# Repo metadata (not applied to ~)
+README.md
+
+# Machine-local / generated files
+.config/zsh/.zcompdump
+.config/zsh/.zcompcache
+.config/zsh/.zsh_history
+.config/zsh/.zsh_sessions
+.config/nvim/lazy-lock.json
+
+# Machine-specific (not committed)
+.config/zsh/secrets
+.config/zsh/work
+
+# macOS only
+{{ if ne .chezmoi.os "darwin" }}
+.config/ghostty
+{{ end }}
+
+# Claude Code — machine-local dirs (not synced)
+.claude/projects
+.claude/cache
+.claude/history.jsonl
+.claude/sessions
+.claude/plans
+.claude/tasks
+.claude/telemetry
+.claude/backups
+.claude/file-history
+.claude/paste-cache
+.claude/shell-snapshots
+.claude/plugins
+.claude/security_warnings_state_*
+.claude/settings.json.bak
+.claude/settings.local.json
+.claude/statusline-command.sh

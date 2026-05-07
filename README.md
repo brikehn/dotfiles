@@ -1,54 +1,66 @@
 # Dotfiles
 
-## Tools I use:
+Managed by [chezmoi](https://www.chezmoi.io/). Tools via [mise](https://mise.jdx.dev/) and brew (macOS).
 
-### Package manager
+---
 
-- brew (macOS)
+## New machine
 
-### Utilities
-
-- stow
-- unzip
-- ripgrep
-- fzy
-- gnupg
-
-### Terminal/Shell
-
-- zsh
-  - zsh-syntax-highlighting
-  - zsh-completions
-  - zsh-autosuggestions
-- starship
-
-### Dev Toolbox
-
-- git
-- neovim
-- node
-- tmux
-- yarn
-- docker
-
-## Manual Installation
+Runs bootstrap script — installs prereqs, then chezmoi.
 
 ```sh
-git clone https://github.com/brikehn/dotfiles.git ~/.dotfiles
+# macOS
+sh -c "$(curl -fsLS https://raw.githubusercontent.com/brikehn/dotfiles/main/scripts/bootstrap.sh)"
+
+# Linux (Debian/Ubuntu)
+wget -qO- https://raw.githubusercontent.com/brikehn/dotfiles/main/scripts/bootstrap.sh | sh
 ```
+
+Sets zsh as default shell — takes effect on next login.
+
+> **Linux:** if sudo is not configured, prompts for root password to set it up, then continues automatically.
+
+### What bootstrap does
+
+1. **macOS:** installs Xcode Command Line Tools (silent), then Homebrew
+2. **Linux:** installs curl + git via apt; configures sudo if missing
+3. Runs `chezmoi init --apply brikehn` — clones dotfiles, applies config
+4. Installs mise tools (go, node, neovim, etc.), tmux plugins, zsh plugins, fonts
+
+### Interactive steps
+
+- **macOS:** Homebrew install prompts for password and confirmation — unavoidable
+
+---
+
+## Existing machine (first-time setup)
+
+Prereqs already installed (curl, git, brew/apt). Just install chezmoi and apply:
 
 ```sh
-cd ~/.dotfiles
-
-# Add config
-stow <dir_name>
-
-# Delete config
-stow -D <dir_name>
+sh -c "$(curl -fsLS https://get.chezmoi.io)" -- init --apply brikehn
 ```
 
-## Fix tmux
+## Maintenance
 
+Edit source files in `~/.local/share/chezmoi/`, then apply. Never edit live files directly — overwritten on next apply.
+
+`chezmoi` aliased to `dotf`
+
+```sh
+# Apply scoped (preferred)
+dotf apply --force ~/.config/nvim
+
+# Apply everything
+dotf apply --force
+
+# Preview before applying
+dotf diff
+
+# Find source path for a live file
+dotf edit ~/.zshrc
 ```
-https://gist.github.com/bbqtd/a4ac060d6f6b9ea6fe3aabe735aa9d95
-```
+
+### Neovim
+
+`<leader>df` — Telescope fuzzy finder scoped to the dotfiles repo (`$DOTFILES`). Find and open source files without navigating manually.
