@@ -1,0 +1,28 @@
+[tools]
+# languages
+go = "latest"
+node = "latest"
+python = "latest"
+rust = "latest"
+
+# shell
+"aqua:starship/starship" = "latest"
+
+# cli tools
+"aqua:sharkdp/bat" = "latest"
+"aqua:junegunn/fzf" = "latest"
+gh = "latest"
+"aqua:BurntSushi/ripgrep" = "latest"
+"aqua:tree-sitter/tree-sitter" = "latest"
+
+# editors
+"aqua:neovim/neovim" = "latest"
+
+# ai
+claude = "latest"
+codex = "latest"
+
+[settings]
+trusted_config_paths = [
+	'~/projects',
+]
