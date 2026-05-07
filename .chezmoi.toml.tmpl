@@ -2,9 +2,11 @@
     isWork = {{ promptBoolOnce . "isWork" "Work machine" }}
     email = "{{ promptStringOnce . "email" "Email" "thebriankwon@gmail.com" }}"
 
+{{ if not .isWork -}}
 [git]
     autoCommit = true
     autoPush = true
+{{ end -}}
 
 [merge]
     command = "nvim"
