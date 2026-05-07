@@ -33,4 +33,6 @@ README.md
 .claude/security_warnings_state_*
 .claude/settings.json.bak
 .claude/settings.local.json
+{{ if .isWork }}
 .claude/statusline-command.sh
+{{ end }}

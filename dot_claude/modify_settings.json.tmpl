@@ -33,7 +33,8 @@ printf '%s' "$current" | jq \
     "skipAutoPermissionPrompt": true,
     "permissions": {"defaultMode": "default"},
     "enabledPlugins": ((.enabledPlugins // {}) * $plugins),
-    "extraKnownMarketplaces": ((.extraKnownMarketplaces // {}) * $marketplaces)
+    "extraKnownMarketplaces": ((.extraKnownMarketplaces // {}) * $marketplaces),
+    "statusLine": {"type": "command", "command": "sh ~/.claude/statusline-command.sh"}
   }'
 {{- else }}
 cat
