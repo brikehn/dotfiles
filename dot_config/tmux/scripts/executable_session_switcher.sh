@@ -73,14 +73,23 @@ list_local_repos() {
   done
 }
 
+list_dotfiles() {
+  # Emits "dotfiles\tpath" if chezmoi source directory exists.
+  local dotfiles_path="$HOME/.local/share/chezmoi"
+  if [[ -d "$dotfiles_path" ]]; then
+    printf 'dotfiles\t%s\n' "$dotfiles_path"
+  fi
+}
+
 build_entries() {
   # Emits tab-delimited lines: "<visible_label>\t<kind>\t<payload>"
-  # Ordering: sessions (MRU), then repos + worktrees + gh_repos merged alpha.
+  # Ordering: sessions (MRU), then repos + worktrees + dotfiles + gh_repos merged alpha.
 
-  local sessions worktrees local_repos gh_repos
+  local sessions worktrees local_repos dotfiles gh_repos
   sessions=$(list_sessions)
   worktrees=$(list_worktrees)
   local_repos=$(list_local_repos)
+  dotfiles=$(list_dotfiles)
   gh_repos=$(list_gh_repos)
 
   # Index worktree labels by path so linked sessions show the "repo@branch" label.
@@ -118,7 +127,7 @@ build_entries() {
   done <<< "$sessions"
 
   # Pass 2: mixed alpha block — local repos, worktrees (without a session),
-  # gh_repos (dimmed).
+  # dotfiles, gh_repos (dimmed).
   local mixed_lines=""
 
   # Local repos.
@@ -133,6 +142,13 @@ build_entries() {
     [[ -n "${linked_worktree_paths[$wpath]:-}" ]] && continue
     mixed_lines+="${wlabel}"$'\t'"worktree"$'\t'"${wpath}"$'\n'
   done <<< "$worktrees"
+
+  # Dotfiles directory (chezmoi source).
+  local df_label df_path
+  while IFS=$'\t' read -r df_label df_path; do
+    [[ -z "$df_label" ]] && continue
+    mixed_lines+="${df_label}"$'\t'"dotfiles"$'\t'"${df_path}"$'\n'
+  done <<< "$dotfiles"
 
   # GH repos — dim via ANSI; skip any that are already local.
   local gh_line
@@ -208,6 +224,11 @@ delete_worktree() {
   # Deletes a worktree after checking for uncommitted changes (ctrl-d).
   # Also deletes the branch if it doesn't exist on remote (local-only branch).
   local label="$1" kind="$2" payload="$3"
+
+  if [[ "$kind" == "dotfiles" ]]; then
+    tmux display-message "cannot delete dotfiles"
+    return 0
+  fi
 
   if [[ "$kind" != "worktree" ]]; then
     tmux display-message "not a worktree: $label"
@@ -476,6 +497,10 @@ main() {
       worktree)
         tmux new-session -d -s "$_label" -c "$payload" 2>/dev/null || true
         tmux switch-client -t "$_label"
+        ;;
+      dotfiles)
+        tmux new-session -d -s "dotfiles" -c "$payload" 2>/dev/null || true
+        tmux switch-client -t "dotfiles"
         ;;
       repo|gh_repo)
         # Run the branch picker in the current popup (nested display-popup is

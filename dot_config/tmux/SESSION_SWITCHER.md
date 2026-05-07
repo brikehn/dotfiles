@@ -79,7 +79,7 @@ git worktree add ../anthology/main main
 
 ### Picker Entries
 
-The picker shows four types of entries:
+The picker shows five types of entries:
 
 1. **Sessions** (top, bold, MRU sorted)
    - Active tmux sessions
@@ -96,7 +96,13 @@ The picker shows four types of entries:
    - Label format: `<org>/<repo>`
    - Selecting opens branch picker
 
-4. **GitHub repos** (middle, dimmed, alpha sorted)
+4. **Dotfiles** (middle, alpha sorted)
+   - Chezmoi source directory (`~/.local/share/chezmoi`)
+   - Only shows if directory exists
+   - Selecting creates/switches to "dotfiles" session
+   - Cannot be deleted via ctrl-d
+
+5. **GitHub repos** (middle, dimmed, alpha sorted)
    - Repos from your GitHub orgs (cached via `gh` CLI)
    - Only shown if not already cloned locally
    - Selecting clones the bare repo, then opens branch picker
@@ -145,7 +151,7 @@ The picker fetches branches from the remote if they don't exist locally yet.
   - Branch on remote → deletes both worktree and local branch (can fetch back anytime)
   - Local-only branch → deletes worktree only, keeps branch (would lose it forever)
 - Picker closes (reopen with `prefix+f` to see updated list)
-- Only works on worktree entries (shows "not a worktree" for others)
+- Only works on worktree entries (shows "not a worktree" for others, "cannot delete dotfiles" for dotfiles entry)
 
 **Orphaned worktrees:**
 If you manually delete a worktree directory, the git metadata remains. `ctrl-d` on an orphaned entry will clean up the metadata automatically.
