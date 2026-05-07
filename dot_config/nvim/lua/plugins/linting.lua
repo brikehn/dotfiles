@@ -8,6 +8,7 @@ return {
 			-- mason: stylelint hadolint golangci-lint eslint_d jsonlint luacheck checkmake shellcheck actionlint rubocop
 			-- note: nvim-lint names differ from mason names in some cases (golangcilint vs golangci-lint)
 			lint.linters_by_ft = {
+				bash = { "shellcheck" },
 				css = { "stylelint" },
 				docker = { "hadolint" },
 				go = { "golangcilint" }, -- mason: golangci-lint
@@ -19,6 +20,7 @@ return {
 				make = { "checkmake" },
 				ruby = { "rubocop" },
 				sh = { "shellcheck" },
+				zsh = { "shellcheck" },
 				typescript = { "eslint_d" },
 				typescriptreact = { "eslint_d" },
 				yaml = { "actionlint" },
