@@ -36,4 +36,5 @@ README.md
 {{ if .isWork }}
 .claude/statusline-command.sh
 .claude/settings.json
+.claude/hooks
 {{ end }}
