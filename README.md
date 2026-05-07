@@ -44,7 +44,7 @@ exec zsh
 Prereqs already installed (curl, git, brew/apt). Just install chezmoi and apply:
 
 ```sh
-sh -c "$(curl -fsLS https://get.chezmoi.io/lb)" -- init --apply brikehn
+sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin" init --apply brikehn
 exec zsh
 ```
 
