@@ -1,0 +1,73 @@
+# ----- Zsh Configuration -----
+
+bindkey -e # Use emacs-style bindings
+
+# Options
+setopt MENU_COMPLETE # Enable menu completion
+setopt INTERACTIVE_COMMENTS # Allow comments in shell
+setopt HIST_IGNORE_ALL_DUPS # Remove duplicates in history
+
+# Completion configuration
+zstyle ':completion:*' menu select
+zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+
+# ----- Aliases -----
+
+alias vim=nvim
+alias dotf=chezmoi
+
+# Pretty `ls`
+{{- if eq .chezmoi.os "darwin" }}
+alias ls="ls -FG"
+{{- else }}
+alias ls="ls -F --color=auto"
+{{- end }}
+
+# ----- Helpers -----
+
+killport() { lsof -ti tcp:"$1" | xargs -r kill; }
+
+# ----- Initialization -----
+
+# Load secrets if present
+test -f "${ZDOTDIR}/secrets" && source "${ZDOTDIR}/secrets"
+
+# Load work-related config if present
+test -f "${ZDOTDIR}/work" && source "${ZDOTDIR}/work"
+
+{{- if eq .chezmoi.os "darwin" }}
+# Load `brew`
+eval "$(/opt/homebrew/bin/brew shellenv)"
+{{- end }}
+
+# Load `mise`
+eval "$(${HOME}/.local/bin/mise activate zsh)"
+
+# Load `starship` shell prompt
+eval "$(starship init zsh)"
+
+# ----- Plugins -----
+
+# zsh-completions fpath
+FPATH="${ZDOTDIR}/plugins/zsh-completions/src:${FPATH}"
+
+zmodload zsh/complist
+bindkey -M menuselect '^h' vi-backward-char
+bindkey -M menuselect '^k' vi-up-line-or-history
+bindkey -M menuselect '^l' vi-forward-char
+bindkey -M menuselect '^j' vi-down-line-or-history
+bindkey "^ " autosuggest-accept
+
+autoload -Uz compinit; compinit
+_comp_options+=(globdots)
+
+# zsh-autosuggestions
+ZSH_AUTOSUGGEST_STRATEGY=(history completion match_prev_cmd)
+
+# zsh-history-substring-search
+bindkey '^p' history-substring-search-up
+bindkey '^n' history-substring-search-down
+
+source "${ZDOTDIR}/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh"
+source "${ZDOTDIR}/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh" # must load last
+source "${ZDOTDIR}/plugins/zsh-history-substring-search/zsh-history-substring-search.plugin.zsh" # must load after zsh-syntax-highlighting
