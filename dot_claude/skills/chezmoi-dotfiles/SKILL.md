@@ -23,140 +23,88 @@ When unsure about chezmoi behavior, fetch the relevant doc above rather than gue
 
 ## Hard Rules
 
-- **Never edit `~` config files directly.** Always edit `~/.local/share/chezmoi/` source, then apply.
-- **Always apply after editing.** Scope `chezmoi apply --force` to only the changed target path.
-- **Never manually commit or push on personal machines.** `chezmoi apply` auto-commits and auto-pushes. Manual `git commit`/`git push` in the chezmoi source dir is redundant and wrong.
-- **chezmoi aliased to `dotf` in interactive shell.** Use `chezmoi <cmd>` in instructions. In scripts or non-interactive contexts use `~/.local/bin/chezmoi` if mise shims aren't active yet.
+- **Never edit `~` directly.** Edit `~/.local/share/chezmoi/` source, then apply.
+- **Always apply after editing.** Scope to changed path: `chezmoi apply --force <path>`.
+- **Use `chezmoi add` to bring live changes back to source.**
+- **Auto-commit/push on personal machines only.** Work machines: commit manually.
+- **chezmoi aliased to `dotf` in shell.** Use full command in docs/scripts.
 
 ## Source Naming
 
-Chezmoi encodes metadata in source filenames via prefixes and suffixes. Key ones:
+| Source                       | Target            | Meaning                         |
+| ---------------------------- | ----------------- | ------------------------------- |
+| `dot_zprofile`               | `~/.zprofile`     | `dot_` → leading dot            |
+| `executable_myscript.sh`     | `myscript.sh`     | sets executable bit             |
+| `file.tmpl`                  | `file`            | Go template (rendered on apply) |
+| `run_once_before_00-foo.sh`  | (script)          | runs once, never again          |
+| `run_onchange_before_bar.sh` | (script)          | re-runs when content changes    |
 
-| Source name                              | Target            | Why                                        |
-| ---------------------------------------- | ----------------- | ------------------------------------------ |
-| `dot_zprofile`                           | `~/.zprofile`     | `dot_` → leading dot                       |
-| `dot_config/nvim/`                       | `~/.config/nvim/` | directory, same rule                       |
-| `settings.json.tmpl`                     | `settings.json`   | `.tmpl` → processed as Go template         |
-| `run_once_before_00-bootstrap.sh`        | (script)          | runs once, before apply, ordered by name   |
-| `run_onchange_before_01-install-deps.sh` | (script)          | re-runs when content changes, before apply |
-| `executable_myscript.sh`                 | `myscript.sh`     | sets executable bit                        |
-
-Full attribute reference: https://www.chezmoi.io/reference/source-state-attributes/
+Doc: https://www.chezmoi.io/reference/source-state-attributes/
 
 ## Machine-Local Variables
 
-`.chezmoi.toml.tmpl` in the repo root prompts during `chezmoi init` and writes values into `~/.config/chezmoi/chezmoi.toml` under `[data]`:
+`.chezmoi.toml.tmpl` prompts on `init`, stores in `~/.config/chezmoi/chezmoi.toml` under `[data]`. Use in `.tmpl` files as `{{ .variableName }}`.
 
-```toml
-[data]
-    isWork = {{ promptBool "Work machine?" false }}
-```
+Example: `{{- if .isWork -}} ... {{- end -}}` (the `-` trims whitespace).
 
-Values are available in all `.tmpl` files as `.variableName`. Template usage: `{{- if .isWork -}} ... {{- end -}}`. The `-` trims surrounding whitespace.
-
-Reference: https://www.chezmoi.io/reference/special-files/chezmoi-format-tmpl/
-
-## Claude Code Settings Split
-
-`dot_claude/settings.json.tmpl` dispatches to `.chezmoitemplates/`:
-
-```
-{{- if .isWork -}}
-{{-   template "claude_settings_work.tmpl" . -}}
-{{- else -}}
-{{-   template "claude_settings_personal.tmpl" . -}}
-{{- end -}}
-```
-
-- `claude_settings_personal.tmpl` — model/effortLevel/advisorModel; caveman plugin; extraKnownMarketplaces
-- `claude_settings_work.tmpl` — none of the above; no third-party marketplaces
+Doc: https://www.chezmoi.io/reference/special-files/chezmoi-format-tmpl/
 
 ## Scripts
 
-Two script prefixes, with different re-run semantics:
+| Prefix             | Re-runs when          | Use for               |
+| ------------------ | --------------------- | --------------------- |
+| `run_once_`        | Never (hash-keyed)    | Bootstrap (brew once) |
+| `run_onchange_`    | Content changes       | Deps (propagates)     |
+| Numbers: `00-`,... | Controls exec order   | Alphabetical sort     |
 
-| Prefix                 | Re-runs when                                 | Use for                                                      |
-| ---------------------- | -------------------------------------------- | ------------------------------------------------------------ |
-| `run_once_before_`     | Never again (content-hash keyed per machine) | Bootstrap: install brew once                                 |
-| `run_onchange_before_` | Script content changes                       | Dep list: add a package, commit, apply — all machines get it |
-
-Numbers in filenames (`00-`, `01-`) control execution order (alphabetical sort).
-
-Reference: https://www.chezmoi.io/user-guide/use-scripts-to-perform-actions/
+Doc: https://www.chezmoi.io/user-guide/use-scripts-to-perform-actions/
 
 ## Script Idempotency
 
-Scripts must be safe to re-run. Two pitfalls:
+Must be safe to re-run. Pitfalls:
 
-**`set -e` + `&&` short-circuit**: `[ ! -d "$dir" ] && git clone ...` — when dir exists, the test exits 1, `set -e` kills the script. Use `if`:
+**`set -e` + `&&`**: Use `if` not `[ ! -d "$d" ] && git clone` (short-circuit exits 1).
 
-```sh
-clone_if_missing() {
-  if [ ! -d "$2" ]; then
-    git clone --depth=1 "$1" "$2"
-  fi
-}
-```
-
-**Package manager state ≠ actual state**: `brew list` returns non-zero for manually installed tools. Check real state instead:
+**Package state ≠ reality**: Check real state, not `brew list` (fails for manual installs).
 
 ```sh
-# CLI tools
 command -v tmux >/dev/null 2>&1 || brew install tmux
-
-# Fonts (macOS) — check ~/Library/Fonts/ directly
-font_installed() {
-  ls "$HOME/Library/Fonts/${1}"* >/dev/null 2>&1
-}
-font_installed IosevkaTermNerdFont || brew install --cask font-iosevka-term-nerd-font
+ls ~/Library/Fonts/IosevkaTermNerdFont* >/dev/null 2>&1 || brew install --cask font-iosevka-term-nerd-font
 ```
 
-## Auto Commit / Push (personal machines only)
+## Auto Commit / Push
 
-`.chezmoi.toml.tmpl` enables `autoCommit = true` and `autoPush = true` when `isWork = false`. On personal machines, `chezmoi apply` automatically commits and pushes source changes — no manual `git commit` or `git push` needed.
+Personal: `autoCommit = true` and `autoPush = true` (apply commits+pushes automatically).
+Work: disabled. Commit manually.
 
-On work machines (`isWork = true`), auto-commit/push is disabled. Commit and push manually when needed.
+## Workflow
 
-## Workflow for Any Change
+**Edit source first (preferred):**
+1. Edit `~/.local/share/chezmoi/`
+2. `chezmoi apply --force <path>`
+3. Personal: done (auto-committed). Work: commit manually.
 
-1. Edit source in `~/.local/share/chezmoi/`.
-2. `chezmoi apply --force <target-path>` (scope to changed file/dir).
-3. Confirm live file updated.
-4. **Personal:** done — apply auto-committed and pushed. **Work:** `git commit` + `git push` manually.
+**Edited live file:**
+1. `chezmoi add <path>` (copies live → source, preserves attributes)
+2. `chezmoi apply --force <path>` (verify)
+3. Personal: done. Work: commit manually.
 
-## Common Commands
+Use `chezmoi add` for: new files, bringing live changes back, executable scripts.
+
+## Commands
 
 ```sh
-# Apply all
-chezmoi apply --force
-
-# Apply scoped (prefer this)
-chezmoi apply --force ~/.config/nvim
-
-# Preview changes without applying
-chezmoi diff
-
-# Find source file for a target
-chezmoi source-path ~/.zprofile
-
-# Verify installation
-chezmoi doctor
-
-# Pull remote changes and apply
-chezmoi update
+chezmoi add <path>           # Live → source (auto-detects attributes)
+chezmoi apply --force <path> # Source → live (scoped, preferred)
+chezmoi diff                 # Preview changes
+chezmoi source-path <path>   # Find source for target
+chezmoi update               # Pull remote + apply
 ```
 
-## Bootstrap (new machine)
+## Bootstrap
 
 ```sh
 sh -c "$(curl -fsLS https://get.chezmoi.io)" -- init --apply brikehn
 ```
 
-Prompts "Work machine?" during init — no manual config needed.
-
-Full guide: https://www.chezmoi.io/user-guide/daily-operations/#install-chezmoi-and-your-dotfiles-on-a-new-machine-with-a-single-command
-
-## mise.toml Organization
-
-`dot_config/mise/config.toml` tools grouped with comments:
-`# languages` / `# shell` / `# cli tools` / `# editors` / `# ai` / `# dotfiles`
+Prompts "Work machine?" on init.

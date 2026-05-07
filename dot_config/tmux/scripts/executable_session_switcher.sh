@@ -1,4 +1,18 @@
 #!/usr/bin/env zsh
+# session_switcher.sh — unified tmux session + git worktree picker
+#
+# USAGE:
+#   Bound to prefix+f in tmux.conf. Opens fzf popup with sessions/worktrees.
+#
+# KEYBINDS:
+#   Enter       Switch to session/worktree or pick branch for repos
+#   ctrl-r      Refresh GitHub repo cache
+#   ctrl-x      Kill selected session (keeps worktree)
+#   ctrl-d      Delete selected worktree (checks for uncommitted changes)
+#
+# SETUP:
+#   See ~/.config/tmux/SESSION_SWITCHER.md for full documentation.
+
 set -eu
 setopt pipefail
 setopt null_glob
@@ -10,9 +24,6 @@ SESSION_SWITCHER_REPO_CACHE="$SESSION_SWITCHER_CACHE_DIR/gh_repos"
 # PATH, so make mise-installed tools (gh) reachable explicitly.
 export PATH="$HOME/.local/share/mise/shims:/opt/homebrew/bin:$PATH"
 
-# session_switcher.sh — unified tmux session + git worktree picker.
-# Shows tmux sessions and git worktrees under ~/repos in one fzf popup.
-#
 # Note: avoid naming local variables `path` — in zsh it is tied to $PATH.
 
 list_worktrees() {
@@ -172,6 +183,69 @@ refresh_gh_repos() {
 # the active terminal theme. In Rose Pine Dawn that's "love" (saturated rose).
 SESSION_SWITCHER_FZF_COLOR='hl:yellow:bold,hl+:yellow:bold'
 
+kill_session() {
+  # Kills a tmux session (ctrl-x). Works on session and worktree entries.
+  local kind="$1" payload="$2"
+
+  if [[ "$kind" == "session" ]]; then
+    # Direct session entry — payload is session name.
+    tmux kill-session -t "$payload" 2>/dev/null || true
+    tmux display-message "killed session: $payload"
+  elif [[ "$kind" == "worktree" ]]; then
+    # Worktree entry — derive session name from label (repo@branch).
+    # Payload is the worktree path, but we need the session name.
+    # The session name should be in {1} (label), so we'll pass it separately.
+    local label="$3"
+    tmux kill-session -t "$label" 2>/dev/null || true
+    tmux display-message "killed session: $label"
+  fi
+
+  # Brief sleep to let tmux update its session list before picker restarts.
+  sleep 0.1
+}
+
+delete_worktree() {
+  # Deletes a worktree after checking for uncommitted changes (ctrl-d).
+  local label="$1" kind="$2" payload="$3"
+
+  if [[ "$kind" != "worktree" ]]; then
+    tmux display-message "not a worktree: $label"
+    return 0
+  fi
+
+  # Worktree path: ~/repos/<org>/<repo>/<branch>
+  # Bare path: ~/repos/<org>/<repo>.git
+  local bare="${payload%/*}.git"
+
+  if [[ ! -d "$payload" ]]; then
+    # Directory is gone but metadata exists — force remove or prune it.
+    local err
+    if ! err=$(git -C "$bare" worktree remove --force "$payload" 2>&1); then
+      # Force remove failed, try pruning all orphaned worktrees.
+      if ! err=$(git -C "$bare" worktree prune 2>&1); then
+        tmux display-message -d 5000 "prune failed: ${err##*$'\n'}"
+        return 1
+      fi
+    fi
+    tmux display-message "pruned orphaned worktree: $label"
+    return 0
+  fi
+
+  # Check for uncommitted changes or untracked files.
+  if ! git -C "$payload" diff-index --quiet HEAD -- 2>/dev/null || \
+     [[ -n $(git -C "$payload" ls-files --others --exclude-standard 2>/dev/null) ]]; then
+    tmux display-message -d 5000 "worktree has uncommitted changes: $label"
+    return 1
+  fi
+
+  # Safe to delete — remove worktree.
+  if ! git -C "$bare" worktree remove "$payload" 2>/dev/null; then
+    tmux display-message -d 5000 "worktree remove failed: $label"
+    return 1
+  fi
+  tmux display-message "deleted worktree: $label"
+}
+
 branch_picker() {
   local identifier="$1"
   local bare org repo
@@ -243,11 +317,42 @@ branch_picker() {
   if [[ ! -d "$wt_path" ]]; then
     # The branch list came from `ls-remote`, so the picked branch may not yet
     # have a local ref — fetch it explicitly before `worktree add`.
-    git -C "$bare" fetch origin "$branch" 2>/dev/null || true
-    local err
-    if ! err=$(git -C "$bare" worktree add "$wt_path" "$branch" 2>&1); then
-      tmux display-message -d 4000 "worktree add failed: ${err##*$'\n'}"
-      return 1
+    local err branch_exists_remotely=1
+    if ! err=$(git -C "$bare" fetch origin "$branch" 2>&1); then
+      # If branch doesn't exist on remote, we'll create it locally from origin/HEAD.
+      # Other fetch failures (network, auth) should still abort.
+      if [[ "$err" == *"couldn't find remote ref"* ]]; then
+        branch_exists_remotely=0
+      else
+        tmux display-message -d 5000 "fetch failed: ${err##*$'\n'}"
+        return 1
+      fi
+    fi
+
+    if [[ $branch_exists_remotely -eq 1 ]]; then
+      # Branch exists remotely — check it out.
+      if ! err=$(git -C "$bare" worktree add "$wt_path" "$branch" 2>&1); then
+        tmux display-message -d 5000 "worktree add failed: ${err##*$'\n'}"
+        return 1
+      fi
+    else
+      # Branch doesn't exist — create it from the default branch.
+      # Determine the default branch by trying common names.
+      local base_ref=""
+      for candidate in origin/main origin/master origin/develop main master; do
+        if git -C "$bare" rev-parse --verify "$candidate" >/dev/null 2>&1; then
+          base_ref="$candidate"
+          break
+        fi
+      done
+      if [[ -z "$base_ref" ]]; then
+        tmux display-message -d 5000 "no default branch found (tried main, master, develop)"
+        return 1
+      fi
+      if ! err=$(git -C "$bare" worktree add -b "$branch" "$wt_path" "$base_ref" 2>&1); then
+        tmux display-message -d 5000 "worktree add -b failed: ${err##*$'\n'}"
+        return 1
+      fi
     fi
   fi
 
@@ -285,6 +390,18 @@ main() {
     return $?
   fi
 
+  if [[ "${1:-}" == "--kill-session" ]]; then
+    shift
+    kill_session "$@"
+    return $?
+  fi
+
+  if [[ "${1:-}" == "--delete-worktree" ]]; then
+    shift
+    delete_worktree "$@"
+    return $?
+  fi
+
   local entries
   entries=$("$ZSH_ARGZERO" --emit-entries)
 
@@ -305,7 +422,9 @@ main() {
     --info-command "true" \
     --info=right \
     --no-scrollbar \
-    --bind "ctrl-r:reload($ZSH_ARGZERO --refresh-repos --emit-entries 2>/dev/null)")
+    --bind "ctrl-r:reload($ZSH_ARGZERO --refresh-repos --emit-entries 2>/dev/null)" \
+    --bind "ctrl-x:execute-silent($ZSH_ARGZERO --kill-session {2} {3} {1})+abort" \
+    --bind "ctrl-d:execute-silent($ZSH_ARGZERO --delete-worktree {1} {2} {3})+abort")
   retval=$?
   set -e
 
