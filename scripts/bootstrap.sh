@@ -43,4 +43,4 @@ if [ "$(uname -s)" = "Linux" ]; then
 fi
 
 # --- chezmoi init + apply ---
-sh -c "$(curl -fsLS https://get.chezmoi.io)" -- init --apply brikehn
+sh -c "$(curl -fsLS https://get.chezmoi.io/lb)" -- init --apply brikehn

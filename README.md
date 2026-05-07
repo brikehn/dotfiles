@@ -31,6 +31,12 @@ Sets zsh as default shell — takes effect on next login.
 
 - **macOS:** Homebrew install prompts for password and confirmation — unavoidable
 
+After bootstrap completes, reload the shell:
+
+```sh
+exec zsh
+```
+
 ---
 
 ## Existing machine (first-time setup)
@@ -38,7 +44,8 @@ Sets zsh as default shell — takes effect on next login.
 Prereqs already installed (curl, git, brew/apt). Just install chezmoi and apply:
 
 ```sh
-sh -c "$(curl -fsLS https://get.chezmoi.io)" -- init --apply brikehn
+sh -c "$(curl -fsLS https://get.chezmoi.io/lb)" -- init --apply brikehn
+exec zsh
 ```
 
 ## Maintenance
@@ -57,7 +64,7 @@ dotf apply --force
 # Preview before applying
 dotf diff
 
-# Find source path for a live file
+# Open source file for editing
 dotf edit ~/.zshrc
 ```
 
