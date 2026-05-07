@@ -35,7 +35,7 @@ test -f "${ZDOTDIR}/secrets" && source "${ZDOTDIR}/secrets"
 # Load work-related config if present
 test -f "${ZDOTDIR}/work" && source "${ZDOTDIR}/work"
 
-{{- if eq .chezmoi.os "darwin" }}
+{{ if eq .chezmoi.os "darwin" }}
 # Load `brew`
 eval "$(/opt/homebrew/bin/brew shellenv)"
 {{- end }}
