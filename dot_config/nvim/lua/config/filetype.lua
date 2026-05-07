@@ -18,6 +18,8 @@ vim.filetype.add({
 		[".*/%.config/git/config"] = "gitconfig",
 		[".*/%.config/git/work"] = "gitconfig",
 		[".*/%.config/git/ignore"] = "gitignore",
+		[".*/%.config/zsh/work"] = "zsh",
+		[".*/%.config/zsh/secrets"] = "zsh",
 	},
 })
 
