@@ -8,7 +8,7 @@
 #   Enter       Switch to session/worktree or pick branch for repos
 #   ctrl-r      Refresh GitHub repo cache
 #   ctrl-x      Kill selected session (keeps worktree)
-#   ctrl-d      Delete worktree (also deletes local branch if on remote)
+#   ctrl-d      Delete worktree (kills session if active; deletes local branch if on remote)
 #
 # SETUP:
 #   See ~/.config/tmux/SESSION_SWITCHER.md for full documentation.
@@ -236,11 +236,25 @@ kill_session() {
 delete_worktree() {
   # Deletes a worktree after checking for uncommitted changes (ctrl-d).
   # Also deletes the branch if it doesn't exist on remote (local-only branch).
+  # When the selected entry is a session backed by a worktree, kills the session first.
   local label="$1" kind="$2" payload="$3"
 
   if [[ "$kind" == "dotfiles" ]]; then
     tmux display-message "cannot delete dotfiles"
     return 0
+  fi
+
+  if [[ "$kind" == "session" ]]; then
+    # Resolve session path — if it's a worktree, kill session and proceed.
+    local session_path
+    session_path=$(tmux display-message -t "$payload" -p '#{session_path}' 2>/dev/null) || true
+    if [[ -z "$session_path" || ! -f "$session_path/.git" ]]; then
+      tmux display-message "not a worktree: $label"
+      return 0
+    fi
+    tmux kill-session -t "$payload" 2>/dev/null || true
+    payload="$session_path"
+    kind="worktree"
   fi
 
   if [[ "$kind" != "worktree" ]]; then
