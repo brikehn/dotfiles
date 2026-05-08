@@ -26,4 +26,4 @@ codex = "latest"
 chezmoi = "latest"
 
 [settings]
-trusted_config_paths = ['~/projects']
+trusted_config_paths = ['~/repos']
