@@ -267,11 +267,28 @@ delete_worktree() {
     return 0
   fi
 
-  # Worktree path: ~/repos/<org>/<repo>/<branch>
-  # Bare path: ~/repos/<org>/<repo>.git
-  # Branch name: extract from label (repo@branch)
-  local bare="${payload%/*}.git"
-  local branch="${label##*@}"
+  # Derive bare repo from worktree's .git file (handles branches with slashes).
+  local bare branch
+  branch="${label##*@}"
+  if [[ -f "$payload/.git" ]]; then
+    # .git file contains: "gitdir: /path/to/bare.git/worktrees/<name>"
+    bare=$(< "$payload/.git")
+    bare="${bare#gitdir: }"
+    bare="${bare%/worktrees/*}"
+  else
+    # Fallback: infer from label (repo@branch → ~/repos/<org>/repo.git)
+    local repo="${label%%@*}"
+    # Walk up from payload to find <repo>.git sibling
+    local dir="$payload"
+    while [[ "$dir" != "$HOME/repos" && "$dir" != "/" ]]; do
+      dir="${dir%/*}"
+      if [[ -d "$dir.git" ]]; then
+        bare="$dir.git"
+        break
+      fi
+    done
+    [[ -z "${bare:-}" ]] && bare="${payload%/*}.git"
+  fi
 
   if [[ ! -d "$payload" ]]; then
     # Directory is gone but metadata exists — force remove or prune it.
