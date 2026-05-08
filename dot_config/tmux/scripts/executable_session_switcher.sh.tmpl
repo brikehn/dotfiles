@@ -114,6 +114,8 @@ build_entries() {
   # Track which worktree paths and session names already have a session so Pass 2 can skip them.
   typeset -A linked_worktree_paths
   typeset -A active_session_names
+  local dotfiles_path="$HOME/.local/share/chezmoi"
+  local dotfiles_has_session=0
   local session_lines=""
   local name s_path activity display
   while IFS=$'\t' read -r name s_path activity; do
@@ -122,6 +124,9 @@ build_entries() {
     if [[ -n "${worktree_label_by_path[$s_path]:-}" ]]; then
       display="${worktree_label_by_path[$s_path]}"
       linked_worktree_paths[$s_path]=1
+    elif [[ "$s_path" == "$dotfiles_path" ]]; then
+      display="dotfiles"
+      dotfiles_has_session=1
     else
       display="$name"
     fi
@@ -145,11 +150,11 @@ build_entries() {
     mixed_lines+="${wlabel}"$'\t'"worktree"$'\t'"${wpath}"$'\n'
   done <<< "$worktrees"
 
-  # Dotfiles directory (chezmoi source) — skip if already has a session.
+  # Dotfiles directory (chezmoi source) — skip if any session already points to it.
   local df_label df_path
   while IFS=$'\t' read -r df_label df_path; do
     [[ -z "$df_label" ]] && continue
-    [[ -n "${active_session_names[$df_label]:-}" ]] && continue
+    [[ $dotfiles_has_session -eq 1 ]] && continue
     mixed_lines+="${df_label}"$'\t'"dotfiles"$'\t'"${df_path}"$'\n'
   done <<< "$dotfiles"
 
