@@ -509,6 +509,7 @@ main() {
     --info-command "true" \
     --info=right \
     --no-scrollbar \
+    --tiebreak=index \
     --bind "ctrl-r:reload($ZSH_ARGZERO --refresh-repos --emit-entries 2>/dev/null)" \
     --bind "ctrl-x:execute-silent($ZSH_ARGZERO --kill-session {2} {3} {1})+abort" \
     --bind "ctrl-d:execute-silent($ZSH_ARGZERO --delete-worktree {1} {2} {3})+abort")
