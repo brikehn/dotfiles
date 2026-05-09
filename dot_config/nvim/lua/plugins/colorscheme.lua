@@ -20,6 +20,16 @@ return {
 				TelescopePromptTitle = { fg = "base", bg = "pine" },
 				TelescopePromptNormal = { fg = "text", bg = "base" },
 				TelescopePromptBorder = { fg = "base", bg = "base" },
+
+				OilGitAdded = { fg = "foam" },
+				OilGitModifiedStaged = { fg = "iris" },
+				OilGitModifiedUnstaged = { fg = "rose" },
+				OilGitRenamed = { fg = "pine" },
+				OilGitDeleted = { fg = "love" },
+				OilGitCopied = { fg = "subtle" },
+				OilGitConflict = { fg = "iris" },
+				OilGitUntracked = { fg = "subtle" },
+				OilGitIgnored = { fg = "muted" },
 			},
 		},
 		init = function()

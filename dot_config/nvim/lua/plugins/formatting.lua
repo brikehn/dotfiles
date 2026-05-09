@@ -26,8 +26,6 @@ return {
 		opts = function()
 			vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
 
-			-- mason: prettier stylua shfmt taplo rubocop markdownlint
-			-- mise: gofmt(go) templ rustywind
 			return {
 				formatters_by_ft = {
 					bash = { "shfmt" },

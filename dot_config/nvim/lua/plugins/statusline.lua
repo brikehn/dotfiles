@@ -19,7 +19,6 @@ return {
 					theme = "rose-pine",
 					section_separators = "",
 					component_separators = "",
-					disabled_filetypes = { "NvimTree" },
 				},
 				sections = {
 					lualine_a = { "" },
@@ -49,6 +48,7 @@ return {
 						"progress",
 					},
 				},
+				extensions = { "oil", "fugitive", "lazy", "mason" }
 			}
 		end,
 	},

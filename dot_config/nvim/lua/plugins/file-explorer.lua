@@ -3,7 +3,21 @@ return {
 		"stevearc/oil.nvim",
 		dependencies = { { "nvim-mini/mini.icons", opts = {} } },
 		lazy = false,
-		opts = function()
+		keys = {
+			{ "-", "<CMD>Oil<CR>", mode = { "n" }, { desc = "Open parent directory" } },
+		},
+		config = function()
+			function _G.get_oil_winbar()
+				local bufnr = vim.api.nvim_win_get_buf(vim.g.statusline_winid)
+				local dir = require("oil").get_current_dir(bufnr)
+				if dir then
+					return vim.fn.fnamemodify(dir, ":~")
+				else
+					-- If there is no current directory (e.g. over ssh), just show the buffer name
+					return vim.api.nvim_buf_get_name(0)
+				end
+			end
+
 			-- helper function to parse output
 			local function parse_output(proc)
 				local result = proc:wait()
@@ -54,29 +68,16 @@ return {
 				orig_refresh(...)
 			end
 
-			-- Open parent directory in current window
-			vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
-
 			local detail = false
 
-			return {
+			require("oil").setup({
+				delete_to_trash = true,
+				watch_for_changes = true,
+				lsp_file_methods = {
+					autosave_changes = true,
+				},
 				skip_confirm_for_simple_edits = true,
 				keymaps = {
-					["<C-l>"] = {
-						"actions.select",
-						opts = { vertical = true },
-						desc = "Open the entry in a vertical split",
-					},
-					["<C-s>"] = false,
-					["<C-h>"] = false,
-					["<C-t>"] = false,
-					["<C-j>"] = {
-						"actions.select",
-						opts = { horizontal = true },
-						desc = "Open the entry in a horizontal split",
-					},
-					["<C-p>"] = false,
-					["gp"] = "actions.preview",
 					["<C-y>"] = "actions.yank_entry",
 					["<C-u>"] = "actions.preview_scroll_up",
 					["<C-d>"] = "actions.preview_scroll_down",
@@ -109,7 +110,20 @@ return {
 						end
 					end,
 				},
-			}
+			})
 		end,
+	},
+	{
+		"malewicz1337/oil-git.nvim",
+		dependencies = { "stevearc/oil.nvim" },
+		opts = {
+			show_ignored_files = true,
+			show_ignored_directories = true,
+		},
+	},
+	{
+		"JezerM/oil-lsp-diagnostics.nvim",
+		dependencies = { "stevearc/oil.nvim" },
+		opts = {},
 	},
 }
