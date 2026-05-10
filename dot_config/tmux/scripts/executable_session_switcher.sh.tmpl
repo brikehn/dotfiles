@@ -439,6 +439,7 @@ branch_picker() {
         tmux display-message -d 5000 "worktree add failed: ${err##*$'\n'}"
         return 1
       fi
+      git -C "$bare" branch --set-upstream-to "origin/$branch" "$branch" 2>/dev/null || true
     else
       # Branch doesn't exist anywhere — create it from the default branch.
       local base_ref=""
