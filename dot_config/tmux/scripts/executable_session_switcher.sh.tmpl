@@ -394,7 +394,19 @@ branch_picker() {
   if [[ $retval -eq 0 && -n "$picked" ]]; then
     branch="$picked"
   elif [[ $retval -eq 1 && -n "$query" ]]; then
-    branch="$query"
+    # Query didn't match any branch in fzf. Check if it's a prefix of existing
+    # branches — avoid creating a ref that conflicts with children (e.g. "DBI-558"
+    # when "DBI-558/foo" exists).
+    local prefix_match_count prefix_match
+    prefix_match_count=$(printf '%s\n' "$branches" | grep -c "^${query}" 2>/dev/null || echo 0)
+    if [[ "$prefix_match_count" -eq 1 ]]; then
+      branch=$(printf '%s\n' "$branches" | grep "^${query}")
+    elif [[ "$prefix_match_count" -gt 1 ]]; then
+      tmux display-message -d 3000 "ambiguous: ${prefix_match_count} branches match '${query}*'"
+      return 0
+    else
+      branch="$query"
+    fi
   else
     return 0
   fi
