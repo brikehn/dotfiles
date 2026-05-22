@@ -60,7 +60,6 @@ return {
 			local detail = false
 
 			require("oil").setup({
-				delete_to_trash = true,
 				watch_for_changes = true,
 				lsp_file_methods = {
 					autosave_changes = true,
