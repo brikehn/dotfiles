@@ -37,5 +37,12 @@ SETUP.md
 {{ if .isWork }}
 .claude/statusline-command.sh
 .claude/settings.json
-.claude/hooks
+# Ignore hooks-dir *contents* (not the dir itself) so specific files can be
+# re-included below — gitignore/chezmoi can't negate a child when the parent
+# dir is excluded, but `dir/*` + `!dir/file` works. caveman-* stay ignored on
+# work (caveman runs as a plugin here); agent-status/agent-notify are generic
+# (no work content) so they stay managed on work too and edits sync both ways.
+.claude/hooks/*
+!.claude/hooks/agent-status.sh
+!.claude/hooks/agent-notify.sh
 {{ end }}
