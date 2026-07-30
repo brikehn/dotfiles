@@ -24,6 +24,8 @@ codex = "latest"
 
 # dotfiles
 chezmoi = "latest"
+"aqua:maaslalani/slides" = "latest"
 
 [settings]
 trusted_config_paths = ['~/repos']
+experimental = true
