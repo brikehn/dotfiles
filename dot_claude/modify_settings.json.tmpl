@@ -3,6 +3,7 @@
 set -e
 current=$(cat)
 printf '%s' "$current" | jq \
+  --arg home '{{ .chezmoi.homeDir }}' \
   --argjson plugins '{
     "frontend-design@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,
@@ -18,7 +19,24 @@ printf '%s' "$current" | jq \
     "caveman": {"source": {"source": "github", "repo": "JuliusBrussee/caveman"}},
     "samber": {"source": {"source": "github", "repo": "samber/cc"}}
   }' \
-  '. * {
+  '
+  # ---- personal enforcement hooks (idempotent) -------------------------------
+  # The 4 hook scripts ship as chezmoi source under dot_claude/hooks/. Wired here
+  # (not via a plugin) because DailyPay-managed machines block personal plugin
+  # marketplaces via strictKnownMarketplaces, while settings.json hooks are not
+  # governed. On a personal (non-work) machine settings.json is chezmoi-managed,
+  # so this block wires them automatically; on a work machine settings.json is
+  # chezmoi-ignored, so the hooks are wired into the live file by hand instead.
+  # Idempotency: a re-apply strips any prior copy of MY hooks by basename, passes
+  # every OTHER hook block through untouched (the tmux agent-status/agent-notify
+  # hooks survive), then re-appends mine. So this can run any number of times.
+  ($home + "/.claude/hooks/") as $hd |
+  ["block-webfetch.py", "block-inline-interp.py", "chezmoi-drift.py", "voice-judge.py"] as $mine |
+  def strip_mine(arr):
+    [ (arr // [])[]
+      | select( ([ .hooks[]?.command // "" ] | any(. as $c | ($mine | any(. as $m | ($c | contains($m)))))) | not ) ];
+  def cmd($f): {"type": "command", "command": ("/usr/bin/python3 \x27" + $hd + $f + "\x27"), "timeout": 10};
+  . * {
     "model": "sonnet",
     "effortLevel": "medium",
     "advisorModel": "opus",
@@ -28,4 +46,12 @@ printf '%s' "$current" | jq \
     "enabledPlugins": ((.enabledPlugins // {}) * $plugins),
     "extraKnownMarketplaces": ((.extraKnownMarketplaces // {}) * $marketplaces),
     "statusLine": {"type": "command", "command": "sh ~/.claude/statusline-command.sh"}
-  }'
+  }
+  | .hooks.PreToolUse = ( strip_mine(.hooks.PreToolUse)
+      + [ {"matcher": "WebFetch", "hooks": [ cmd("block-webfetch.py") ]},
+          {"matcher": "Bash",     "hooks": [ cmd("block-inline-interp.py") ]} ] )
+  | .hooks.SessionStart = ( strip_mine(.hooks.SessionStart)
+      + [ {"hooks": [ cmd("chezmoi-drift.py") ]} ] )
+  | .hooks.Stop = ( strip_mine(.hooks.Stop)
+      + [ {"hooks": [ (cmd("voice-judge.py") + {"timeout": 45}) ]} ] )
+  '

@@ -42,7 +42,14 @@ SETUP.md
 # dir is excluded, but `dir/*` + `!dir/file` works. caveman-* stay ignored on
 # work (caveman runs as a plugin here); agent-status/agent-notify are generic
 # (no work content) so they stay managed on work too and edits sync both ways.
+# The 4 enforcement hooks (block-*/chezmoi-drift/voice-judge) carry no work
+# secrets and must deploy on work too, since personal plugins are policy-blocked
+# there and settings.json hooks are the only way to run them.
 .claude/hooks/*
 !.claude/hooks/agent-status.sh
 !.claude/hooks/agent-notify.sh
+!.claude/hooks/block-webfetch.py
+!.claude/hooks/block-inline-interp.py
+!.claude/hooks/chezmoi-drift.py
+!.claude/hooks/voice-judge.py
 {{ end }}
