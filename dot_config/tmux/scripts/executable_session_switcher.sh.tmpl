@@ -453,7 +453,10 @@ branch_picker() {
         tmux display-message -d 5000 "no default branch found (tried main, master, develop)"
         return 1
       fi
-      if ! err=$(git -C "$bare" worktree add -b "$branch" "$wt_path" "$base_ref" 2>&1); then
+      # --no-track: base_ref is a remote-tracking ref (origin/main), so git's
+      # default autoSetupMerge would wire the new branch's upstream to it —
+      # a brand-new branch should have no upstream until pushed.
+      if ! err=$(git -C "$bare" worktree add --no-track -b "$branch" "$wt_path" "$base_ref" 2>&1); then
         tmux display-message -d 5000 "worktree add -b failed: ${err##*$'\n'}"
         return 1
       fi
