@@ -17,23 +17,3 @@ SETUP.md
 {{ if ne .chezmoi.os "darwin" }}
 .config/ghostty
 {{ end }}
-
-# Claude Code — machine-local dirs (not synced)
-.claude/projects
-.claude/cache
-.claude/history.jsonl
-.claude/sessions
-.claude/plans
-.claude/tasks
-.claude/telemetry
-.claude/backups
-.claude/file-history
-.claude/paste-cache
-.claude/shell-snapshots
-.claude/plugins
-.claude/security_warnings_state_*
-.claude/settings.json.bak
-.claude/settings.local.json
-{{ if .isWork }}
-.claude/statusline-command.sh
-{{ end }}
