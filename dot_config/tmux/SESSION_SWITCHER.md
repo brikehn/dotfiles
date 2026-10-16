@@ -6,9 +6,11 @@ Unified tmux session + git worktree picker with fzf.
 
 - **Browse sessions and worktrees** in a single fuzzy-searchable popup
 - **Create sessions** from existing worktrees or new branches
-- **Kill sessions** without deleting worktrees (ctrl-x)
+- **Kill sessions or windows** without deleting worktrees (ctrl-x)
 - **Delete worktrees** with safety checks for uncommitted changes (ctrl-d)
 - **MRU session ordering** with bold highlighting for active sessions
+- **Worktree/dotfiles context**, shown dim and right-aligned, for any session
+  or window that's actually sitting in one
 
 ## Setup
 
@@ -70,7 +72,7 @@ git worktree add ../widgets/main main
 |-----|--------|
 | `prefix+f` | Open the picker |
 | `Enter` | Switch to selected entry (or pick branch for repos) |
-| `ctrl-x` | Kill selected session (does not delete worktree) |
+| `ctrl-x` | Kill selected session or window (does not delete worktree) |
 | `ctrl-d` | Delete worktree (also deletes branch if it's local-only) |
 | `Esc` / `ctrl-c` | Close picker |
 
@@ -79,9 +81,20 @@ git worktree add ../widgets/main main
 The picker shows four types of entries:
 
 1. **Sessions** (top, bold, MRU sorted)
-   - Active tmux sessions
-   - Label shows `<repo>@<branch>` if linked to a worktree, otherwise session name
-   - Selecting switches to the session immediately
+   - Active tmux sessions, always labeled by their actual tmux session name
+   - If the session has exactly one window and that window's current
+     directory is a worktree or the dotfiles dir, that's shown as dim,
+     right-aligned context on the same row (e.g. `mysession    widgets@main`)
+   - A session with more than one window shows just its name, with each
+     window listed indented below it (own context per window — see below)
+   - Selecting a session (or a window row) switches to it immediately
+
+   **Windows** (indented under a session with 2+ windows)
+   - One row per window: `  <index>:<window name>`, with its own dim,
+     right-aligned context if that window's directory is a worktree or
+     the dotfiles dir — since different windows in the same session can
+     be sitting in different places
+   - Selecting switches straight to that window
 
 2. **Worktrees** (middle, alpha sorted)
    - Git worktrees without attached sessions
@@ -129,11 +142,11 @@ The picker fetches branches from the remote if they don't exist locally yet.
 
 ### Deleting
 
-**Kill session (ctrl-x):**
-- Kills the tmux session
+**Kill session or window (ctrl-x):**
+- Kills the tmux session, or just the selected window if it's a window row
 - Worktree remains intact
 - Picker closes (reopen with `prefix+f` to see updated list)
-- Works on both session and worktree entries
+- Works on session, window, and worktree entries
 
 **Delete worktree (ctrl-d):**
 - Checks for uncommitted changes first (staged, unstaged, untracked)
@@ -180,7 +193,7 @@ git branch -a  # verify branches exist
 ## Tips
 
 - **Session names**: Use `<repo>@<branch>` pattern for clarity
-- **Prefix+w**: Switch between tmux windows in a session
+- **Prefix+w**: Native tmux window picker, an alternative to the indented window rows here
 - **Prefix+s**: Native tmux session picker (alternative for just sessions)
 - **Worktree cleanup**: Periodically run `git worktree prune` in bare repos to clean up stale metadata
 
@@ -208,7 +221,7 @@ SESSION_SWITCHER_FZF_COLOR='hl:yellow:bold,hl+:yellow:bold'
 Adjust in `tmux.conf`:
 
 ```tmux
-# Larger popup
+# Default is 60x20. Larger popup, e.g. for sessions with lots of windows:
 bind f display-popup -w 80 -h 30 -y 10 -E '~/.config/tmux/scripts/session_switcher.sh'
 ```
 

@@ -6,7 +6,7 @@
 #
 # KEYBINDS:
 #   Enter       Switch to session/worktree or pick branch for repos
-#   ctrl-x      Kill selected session (keeps worktree)
+#   ctrl-x      Kill selected session or window (keeps worktree)
 #   ctrl-d      Delete worktree (kills session if active; deletes local branch if on remote)
 #
 # SETUP:
@@ -48,8 +48,29 @@ list_worktrees() {
 }
 
 list_sessions() {
-  # Format: name<TAB>path<TAB>activity_epoch
-  tmux list-sessions -F '#{session_name}	#{session_path}	#{session_activity}' 2>/dev/null || true
+  # Format: name<TAB>activity_epoch
+  tmux list-sessions -F '#{session_name}	#{session_activity}' 2>/dev/null || true
+}
+
+list_windows() {
+  # Format: session_name<TAB>window_index<TAB>window_name<TAB>window_path
+  # window_path is the active pane's current path — used to tag a window
+  # with the worktree/dotfiles dir it's actually sitting in right now.
+  tmux list-windows -a -F '#{session_name}	#{window_index}	#{window_name}	#{pane_current_path}' 2>/dev/null || true
+}
+
+# Popup content width, queried from the controlling terminal rather than
+# stdout — build_entries' stdout is a pipe (captured by $(...) or fzf's
+# reload), so `tput cols`/stty against fd 1 would see a pipe, not the popup's
+# actual size. /dev/tty always resolves to the real terminal regardless of
+# stdio redirection.
+# fzf reserves 1 column for its own left --padding; trimming one more leaves
+# a 1-column buffer so right-justified text doesn't touch the popup's edge.
+session_switcher_usable_cols() {
+  local cols
+  cols=$(stty size </dev/tty 2>/dev/null | cut -d' ' -f2)
+  [[ -n "$cols" ]] || cols=100
+  printf '%d' $(( cols - 2 ))
 }
 
 list_local_repos() {
@@ -71,17 +92,57 @@ list_dotfiles() {
   fi
 }
 
+# Prints the context label for a path — "<repo>@<branch>" when it's a
+# worktree root, "dotfiles" for the chezmoi source dir, nothing otherwise.
+# Relies on worktree_label_by_path and dotfiles_path being set by the caller
+# (build_entries) — zsh's dynamic scoping makes the caller's locals visible
+# here for the duration of the call.
+context_for() {
+  local p="$1"
+  if [[ -n "${worktree_label_by_path[$p]:-}" ]]; then
+    printf '%s' "${worktree_label_by_path[$p]}"
+  elif [[ "$p" == "$dotfiles_path" ]]; then
+    printf 'dotfiles'
+  fi
+}
+
+# Emits $prefix_styled, then — if $context is non-empty — right-justifies a
+# dim "$context" against usable_cols (set by the caller). Padding is computed
+# from the plain-text lengths ($prefix_plain, $context) so ANSI escapes
+# already in $prefix_styled don't throw off the math.
+context_row() {
+  local prefix_styled="$1" prefix_plain="$2" context="$3" pad
+  if [[ -z "$context" ]]; then
+    printf '%s' "$prefix_styled"
+    return
+  fi
+  pad=$(( usable_cols - ${#prefix_plain} - ${#context} - 1 ))
+  (( pad < 0 )) && pad=0
+  printf '%s%*s %s' "$prefix_styled" "$pad" "" $'\x1b[2m'"${context}"$'\x1b[0m'
+}
+
 build_entries() {
   # Emits tab-delimited lines: "<visible_label>\t<kind>\t<payload>"
-  # Ordering: sessions (MRU), then repos + worktrees + dotfiles merged alpha.
+  # Ordering: sessions (MRU) each followed by its windows indented, then
+  # repos + worktrees + dotfiles merged alpha. Each session's worktree/
+  # dotfiles context (dim, right-aligned) sits on the session's own row when
+  # it has exactly one window; with multiple windows the context moves down
+  # onto whichever window is actually sitting in that directory, since
+  # different windows in the same session can be in different places —
+  # the session row then shows just the name, with no context of its own.
 
-  local sessions worktrees local_repos dotfiles
+  local sessions worktrees local_repos dotfiles windows
   sessions=$(list_sessions)
   worktrees=$(list_worktrees)
   local_repos=$(list_local_repos)
   dotfiles=$(list_dotfiles)
+  windows=$(list_windows)
 
-  # Index worktree labels by path so linked sessions show the "repo@branch" label.
+  local usable_cols
+  usable_cols=$(session_switcher_usable_cols)
+
+  # Index worktree labels by path so a window/session sitting at that exact
+  # path can show "<repo>@<branch>" as context.
   # NOTE: zsh stores literal quotes in keys when subscript is double-quoted —
   # e.g. `x["$k"]=v` keys become `"path"`. Use unquoted subscripts: `x[$k]=v`.
   typeset -A worktree_label_by_path
@@ -91,28 +152,60 @@ build_entries() {
     worktree_label_by_path[$wpath]="$wlabel"
   done <<< "$worktrees"
 
-  # Pass 1: all sessions, MRU at top. Label prefers worktree label when available.
-  # Track which worktree paths and session names already have a session so Pass 2 can skip them.
-  typeset -A linked_worktree_paths
-  typeset -A active_session_names
   local dotfiles_path="$HOME/.local/share/chezmoi"
+
+  # Track which worktree paths and the dotfiles dir already have a session
+  # sitting in them (via some window), so Pass 2 can skip listing them again.
+  typeset -A linked_worktree_paths
   local dotfiles_has_session=0
-  local session_lines=""
-  local name s_path activity display
-  while IFS=$'\t' read -r name s_path activity; do
+
+  # Build each window's row (plain, with its own dim context if it matches a
+  # worktree/dotfiles) and group them by session. Also remember each
+  # session's window count, and — for the common single-window case — that
+  # one window's context, so Pass 1 can fold it onto the session row instead
+  # of emitting a redundant window row.
+  typeset -A windows_by_session
+  typeset -A window_count_by_session
+  typeset -A single_window_context_by_session
+  local wsession widx wname wpath_w wcontext wrow
+  while IFS=$'\t' read -r wsession widx wname wpath_w; do
+    [[ -z "$wsession" ]] && continue
+    window_count_by_session[$wsession]=$(( ${window_count_by_session[$wsession]:-0} + 1 ))
+    wcontext=$(context_for "$wpath_w")
+    [[ -n "$wcontext" ]] && linked_worktree_paths[$wpath_w]=1
+    [[ "$wpath_w" == "$dotfiles_path" ]] && dotfiles_has_session=1
+    single_window_context_by_session[$wsession]="$wcontext"
+    wrow=$(context_row "  ${widx}:${wname}" "  ${widx}:${wname}" "$wcontext")
+    windows_by_session[$wsession]+="${wrow}"$'\t'"window"$'\t'"${wsession}:${widx}"$'\n'
+  done <<< "$windows"
+
+  # Pass 1: all sessions, MRU at top, with windows interleaved right after
+  # any session that has more than one. Sort is not guaranteed stable on
+  # tied keys, so windows are attached post-sort rather than sorted alongside.
+  local sortable_session_lines=""
+  local name activity
+  while IFS=$'\t' read -r name activity; do
     [[ -z "$name" ]] && continue
-    active_session_names[$name]=1
-    if [[ -n "${worktree_label_by_path[$s_path]:-}" ]]; then
-      display="${worktree_label_by_path[$s_path]}"
-      linked_worktree_paths[$s_path]=1
-    elif [[ "$s_path" == "$dotfiles_path" ]]; then
-      display="dotfiles"
-      dotfiles_has_session=1
-    else
-      display="$name"
-    fi
-    session_lines+="${activity}"$'\t'$'\x1b[1m'"${display}"$'\x1b[0m'$'\t'"session"$'\t'"${name}"$'\n'
+    sortable_session_lines+="${activity}"$'\t'"${name}"$'\n'
   done <<< "$sessions"
+
+  local session_lines=""
+  local sorted_name wcount scontext row_text
+  while IFS= read -r sorted_name; do
+    [[ -z "$sorted_name" ]] && continue
+    wcount="${window_count_by_session[$sorted_name]:-0}"
+    if [[ "$wcount" -le 1 ]]; then
+      scontext="${single_window_context_by_session[$sorted_name]:-}"
+      row_text=$(context_row $'\x1b[1m'"${sorted_name}"$'\x1b[0m' "$sorted_name" "$scontext")
+      session_lines+="${row_text}"$'\t'"session"$'\t'"${sorted_name}"$'\n'
+      continue
+    fi
+    # "session-parent" (not "session") when window sub-rows follow — lets
+    # the ctrl-n/ctrl-p binds below detect and skip over the header instead
+    # of landing the cursor on an unselectable parent row.
+    session_lines+=$'\x1b[1m'"${sorted_name}"$'\x1b[0m'$'\t'"session-parent"$'\t'"${sorted_name}"$'\n'
+    session_lines+="${windows_by_session[$sorted_name]:-}"
+  done <<< "$(printf '%s' "$sortable_session_lines" | sort -t$'\t' -k1,1rn | cut -f2)"
 
   # Pass 2: mixed alpha block — local repos, worktrees (without a session), dotfiles.
   local mixed_lines=""
@@ -138,8 +231,9 @@ build_entries() {
     mixed_lines+="${df_label}"$'\t'"dotfiles"$'\t'"${df_path}"$'\n'
   done <<< "$dotfiles"
 
-  # Emit: sessions MRU (sort desc on activity), mixed alpha (sort asc on label).
-  printf '%s' "$session_lines" | sort -t$'\t' -k1,1rn | cut -f2-
+  # Emit: sessions already sorted MRU with windows interleaved above; mixed
+  # alpha block (sort asc on label) after.
+  printf '%s' "$session_lines"
   printf '%s' "$mixed_lines" | sort -t$'\t' -k1,1
 }
 
@@ -148,13 +242,18 @@ build_entries() {
 SESSION_SWITCHER_FZF_COLOR='hl:yellow:bold,hl+:yellow:bold'
 
 kill_session() {
-  # Kills a tmux session (ctrl-x). Works on session and worktree entries.
+  # Kills a tmux session or window (ctrl-x). Works on session, window, and
+  # worktree entries.
   local kind="$1" payload="$2"
 
-  if [[ "$kind" == "session" ]]; then
+  if [[ "$kind" == "session" || "$kind" == "session-parent" ]]; then
     # Direct session entry — payload is session name.
     tmux kill-session -t "$payload" 2>/dev/null || true
     tmux display-message "killed session: $payload"
+  elif [[ "$kind" == "window" ]]; then
+    # Window entry — payload is "session:index" (see windows_by_session).
+    tmux kill-window -t "$payload" 2>/dev/null || true
+    tmux display-message "killed window: $payload"
   elif [[ "$kind" == "worktree" ]]; then
     # Worktree entry — derive session name from label (repo@branch).
     # Payload is the worktree path, but we need the session name.
@@ -179,7 +278,7 @@ delete_worktree() {
     return 0
   fi
 
-  if [[ "$kind" == "session" ]]; then
+  if [[ "$kind" == "session" || "$kind" == "session-parent" ]]; then
     # Resolve session path — if it's a worktree, kill session and proceed.
     local session_path
     session_path=$(tmux display-message -t "$payload" -p '#{session_path}' 2>/dev/null) || true
@@ -420,7 +519,10 @@ main() {
     --no-scrollbar \
     --tiebreak=index \
     --bind "ctrl-x:execute-silent($ZSH_ARGZERO --kill-session {2} {3} {1})+abort" \
-    --bind "ctrl-d:execute-silent($ZSH_ARGZERO --delete-worktree {1} {2} {3})+abort")
+    --bind "ctrl-d:execute-silent($ZSH_ARGZERO --delete-worktree {1} {2} {3})+abort" \
+    --bind "load:transform:[[ -z {q} && {2} == session-parent ]] && echo down || echo" \
+    --bind "ctrl-n:down+transform:[[ -z {q} && {2} == session-parent ]] && echo down || echo" \
+    --bind "ctrl-p:up+transform:[[ -z {q} && {2} == session-parent ]] && echo up || echo")
   retval=$?
   set -e
 
@@ -432,7 +534,7 @@ main() {
     local _label kind payload
     IFS=$'\t' read -r _label kind payload <<< "$picked"
     case "$kind" in
-      session)
+      session|session-parent|window)
         tmux switch-client -t "$payload"
         ;;
       worktree)
