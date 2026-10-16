@@ -6,7 +6,6 @@ Unified tmux session + git worktree picker with fzf.
 
 - **Browse sessions and worktrees** in a single fuzzy-searchable popup
 - **Create sessions** from existing worktrees or new branches
-- **Clone repos** from GitHub and create worktrees on-the-fly
 - **Kill sessions** without deleting worktrees (ctrl-x)
 - **Delete worktrees** with safety checks for uncommitted changes (ctrl-d)
 - **MRU session ordering** with bold highlighting for active sessions
@@ -16,7 +15,6 @@ Unified tmux session + git worktree picker with fzf.
 ### Prerequisites
 
 - **fzf** (fuzzy finder) — `brew install fzf` or `mise use fzf`
-- **gh CLI** (optional, for GitHub repo discovery) — `brew install gh && gh auth login`
 - **git worktree-based repo structure** (see Directory Structure below)
 
 ### tmux.conf
@@ -72,14 +70,13 @@ git worktree add ../widgets/main main
 |-----|--------|
 | `prefix+f` | Open the picker |
 | `Enter` | Switch to selected entry (or pick branch for repos) |
-| `ctrl-r` | Refresh GitHub repo cache |
 | `ctrl-x` | Kill selected session (does not delete worktree) |
 | `ctrl-d` | Delete worktree (also deletes branch if it's local-only) |
 | `Esc` / `ctrl-c` | Close picker |
 
 ### Picker Entries
 
-The picker shows five types of entries:
+The picker shows four types of entries:
 
 1. **Sessions** (top, bold, MRU sorted)
    - Active tmux sessions
@@ -102,14 +99,9 @@ The picker shows five types of entries:
    - Selecting creates/switches to "dotfiles" session
    - Cannot be deleted via ctrl-d
 
-5. **GitHub repos** (middle, dimmed, alpha sorted)
-   - Repos from your GitHub orgs (cached via `gh` CLI)
-   - Only shown if not already cloned locally
-   - Selecting clones the bare repo, then opens branch picker
-
 ### Branch Picker
 
-When you select a repo or GitHub repo, a second fzf popup shows branches:
+When you select a repo, a second fzf popup shows branches:
 
 - **Pick existing branch**: Checks out the branch and creates a worktree
 - **Type new branch name**: Creates a new branch from the default branch (main/master/develop)
@@ -175,15 +167,6 @@ The worktree has uncommitted work (staged, unstaged, or untracked files). Option
 
 The worktree directory was deleted manually (e.g., `rm -rf`) but git metadata remained. The picker cleaned it up.
 
-### Empty picker on first use
-
-If GitHub repos aren't showing:
-1. Install gh CLI: `brew install gh`
-2. Authenticate: `gh auth login`
-3. Refresh cache in picker: `ctrl-r`
-
-The cache is stored at `~/.cache/session_switcher/gh_repos` and refreshed on first use and via `ctrl-r`.
-
 ### "no default branch found (tried main, master, develop)"
 
 The bare repo has no branches checked out. This shouldn't happen with properly cloned bare repos. Fix:
@@ -193,14 +176,6 @@ cd ~/repos/<org>/<repo>.git
 git fetch origin
 git branch -a  # verify branches exist
 ```
-
-## Cache Management
-
-GitHub repo cache location: `~/.cache/session_switcher/gh_repos`
-
-- **Automatic refresh**: First time you open the picker
-- **Manual refresh**: Press `ctrl-r` in the picker
-- **Clear cache**: `rm ~/.cache/session_switcher/gh_repos`
 
 ## Tips
 

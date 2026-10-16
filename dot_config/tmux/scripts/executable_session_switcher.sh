@@ -6,8 +6,7 @@
 #
 # KEYBINDS:
 #   Enter       Switch to session/worktree or pick branch for repos
-#   ctrl-r      Refresh GitHub repo cache
-#   ctrl-x      Kill selected session or window (keeps worktree)
+#   ctrl-x      Kill selected session (keeps worktree)
 #   ctrl-d      Delete worktree (kills session if active; deletes local branch if on remote)
 #
 # SETUP:
@@ -17,11 +16,8 @@ set -eu
 setopt pipefail
 setopt null_glob
 
-SESSION_SWITCHER_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/session_switcher"
-SESSION_SWITCHER_REPO_CACHE="$SESSION_SWITCHER_CACHE_DIR/gh_repos"
-
 # tmux popups + fzf reload subprocesses don't inherit the interactive shell's
-# PATH, so make mise-installed tools (gh) reachable explicitly.
+# PATH, so make mise-installed tools reachable explicitly.
 export PATH="$HOME/.local/share/mise/shims:/opt/homebrew/bin:$PATH"
 
 # Note: avoid naming local variables `path` — in zsh it is tied to $PATH.
@@ -56,67 +52,6 @@ list_sessions() {
   tmux list-sessions -F '#{session_name}	#{session_path}	#{session_activity}' 2>/dev/null || true
 }
 
-list_windows() {
-  # Format: session_name<TAB>window_index<TAB>window_name
-  tmux list-windows -a -F '#{session_name}	#{window_index}	#{window_name}' 2>/dev/null || true
-}
-
-list_agent_status() {
-  # Delegates to agent_status_picker.sh — see that script for output format.
-  local scripts_dir="${ZSH_ARGZERO:A:h}"
-  "$scripts_dir/agent_status_picker.sh" 2>/dev/null || true
-}
-
-# Reuse the shared sh lib's palette (agent_status_ansi_label_for) instead of
-# duplicating rose-pine colors here — zsh can source POSIX function defs fine.
-source "${ZSH_ARGZERO:A:h}/agent_status_lib.sh"
-agent_status_ansi_label() {
-  agent_status_ansi_label_for "$1"
-}
-
-# Longest status word (WORKING/WAITING/BLOCKED are 7 chars, DONE is 4) — the
-# fixed-width field every status right-justifies into, so they all end at the
-# same column regardless of which word is showing.
-AGENT_STATUS_TEXT_WIDTH=7
-
-# Right-justifies a status label inside AGENT_STATUS_TEXT_WIDTH columns.
-# Padding is computed against the plain word (BLOCKED, not its ANSI escapes)
-# and emitted as literal spaces before the colored text — printf's own %*s
-# width would otherwise count the invisible escape bytes and under-pad.
-agent_status_ansi_label_rjust() {
-  local st="$1" plain pad
-  case "$st" in
-    blocked) plain=BLOCKED ;;
-    working) plain=WORKING ;;
-    waiting) plain=WAITING ;;
-    done)    plain=DONE ;;
-    *) return 0 ;;
-  esac
-  pad=$(( AGENT_STATUS_TEXT_WIDTH - ${#plain} ))
-  (( pad > 0 )) && printf '%*s' "$pad" ""
-  agent_status_ansi_label "$st"
-}
-
-# Popup content width, queried from the controlling terminal rather than
-# stdout — build_entries' stdout is a pipe (captured by $(...) or fzf's
-# reload), so `tput cols`/stty against fd 1 would see a pipe, not the popup's
-# actual size. /dev/tty always resolves to the real terminal regardless of
-# stdio redirection.
-# fzf reserves 1 column for its own left --padding; trimming one more leaves
-# a 1-column buffer so right-justified text doesn't touch the popup's edge.
-session_switcher_usable_cols() {
-  local cols
-  cols=$(stty size </dev/tty 2>/dev/null | cut -d' ' -f2)
-  [[ -n "$cols" ]] || cols=100
-  printf '%d' $(( cols - 2 ))
-}
-
-list_gh_repos() {
-  # Emits one "org/repo" per line from the cache. Silent if cache is absent.
-  [[ -f "$SESSION_SWITCHER_REPO_CACHE" ]] || return 0
-  cat "$SESSION_SWITCHER_REPO_CACHE"
-}
-
 list_local_repos() {
   # Emits one "org/repo\tbare_path" per line for each bare repo under ~/repos.
   local bare owner repo
@@ -138,57 +73,13 @@ list_dotfiles() {
 
 build_entries() {
   # Emits tab-delimited lines: "<visible_label>\t<kind>\t<payload>"
-  # Ordering: sessions (MRU) each followed by its windows indented, then
-  # repos + worktrees + dotfiles + gh_repos merged alpha. Sessions with
-  # exactly one window collapse to a single row (that window's status
-  # folded inline) instead of a session row plus a redundant window row —
-  # cuts scrolling for the common single-window case.
+  # Ordering: sessions (MRU), then repos + worktrees + dotfiles merged alpha.
 
-  local sessions worktrees local_repos dotfiles gh_repos windows agent_status
+  local sessions worktrees local_repos dotfiles
   sessions=$(list_sessions)
   worktrees=$(list_worktrees)
   local_repos=$(list_local_repos)
   dotfiles=$(list_dotfiles)
-  gh_repos=$(list_gh_repos)
-  windows=$(list_windows)
-  agent_status=$(list_agent_status)
-
-  # Index agent status by "session\tindex" so the window pass below can
-  # look it up.
-  typeset -A window_status_by_key
-  local wname widx wstate
-  while IFS=$'\t' read -r wname widx wstate; do
-    [[ -z "$wname" ]] && continue
-    [[ "$wstate" != "-" ]] && window_status_by_key[$wname$'\t'$widx]="$wstate"
-  done <<< "$agent_status"
-
-  # Index window names+labels by session so the session pass can emit
-  # indented sub-rows immediately after each session row. Also tally window
-  # count per session and remember the last-seen window's status — when a
-  # session turns out to have exactly one window, that's the only status
-  # that matters, and the session pass inlines it onto the session's own
-  # row instead of emitting a separate indented row (collapses single-window
-  # sessions to 1 line — see window_count_by_session below).
-  # NOTE: widx/wname are already local from the block above — re-declaring an
-  # already-local variable with `local` again in the same function makes zsh
-  # print its current value to stdout, so they're omitted here (and
-  # wstatus/wrow are declared once, not re-declared inside the loop body,
-  # for the same reason).
-  # Statuses right-justify against the popup's actual width (usable_cols),
-  # not the widest visible name — so BLOCKED/WORKING/WAITING/DONE all end
-  # flush at the popup's right edge instead of just past the longest label.
-  local usable_cols
-  usable_cols=$(session_switcher_usable_cols)
-  typeset -A windows_by_session
-  typeset -A window_count_by_session
-  typeset -A single_window_status_by_session
-  local wsession wstatus wprefix wpad
-  while IFS=$'\t' read -r wsession widx wname; do
-    [[ -z "$wsession" ]] && continue
-    window_count_by_session[$wsession]=$(( ${window_count_by_session[$wsession]:-0} + 1 ))
-    wstatus="${window_status_by_key[$wsession$'\t'$widx]:-}"
-    single_window_status_by_session[$wsession]="$wstatus"
-  done <<< "$windows"
 
   # Index worktree labels by path so linked sessions show the "repo@branch" label.
   # NOTE: zsh stores literal quotes in keys when subscript is double-quoted —
@@ -200,23 +91,14 @@ build_entries() {
     worktree_label_by_path[$wpath]="$wlabel"
   done <<< "$worktrees"
 
-  # Index local repos by "org/repo" for dedup against gh_repos.
-  typeset -A local_repo_bare_by_orgrepo
-  local orgrepo bare
-  while IFS=$'\t' read -r orgrepo bare; do
-    [[ -z "$orgrepo" ]] && continue
-    local_repo_bare_by_orgrepo[$orgrepo]="$bare"
-  done <<< "$local_repos"
-
   # Pass 1: all sessions, MRU at top. Label prefers worktree label when available.
   # Track which worktree paths and session names already have a session so Pass 2 can skip them.
   typeset -A linked_worktree_paths
   typeset -A active_session_names
-  typeset -A display_by_session
   local dotfiles_path="$HOME/.local/share/chezmoi"
   local dotfiles_has_session=0
-  local sortable_session_lines=""
-  local name s_path activity display wcount single_status
+  local session_lines=""
+  local name s_path activity display
   while IFS=$'\t' read -r name s_path activity; do
     [[ -z "$name" ]] && continue
     active_session_names[$name]=1
@@ -229,62 +111,10 @@ build_entries() {
     else
       display="$name"
     fi
-    display_by_session[$name]="$display"
-    sortable_session_lines+="${activity}"$'\t'"${name}"$'\n'
+    session_lines+="${activity}"$'\t'$'\x1b[1m'"${display}"$'\x1b[0m'$'\t'"session"$'\t'"${name}"$'\n'
   done <<< "$sessions"
 
-  # Build each window row with its status right-justified to usable_cols
-  # (padding computed as: usable width minus prefix length minus status
-  # word width minus the 1-space gap between them).
-  local wrow
-  while IFS=$'\t' read -r wsession widx wname; do
-    [[ -z "$wsession" ]] && continue
-    wstatus="${window_status_by_key[$wsession$'\t'$widx]:-}"
-    if [[ -n "$wstatus" ]]; then
-      wprefix="  ${widx}:${wname}"
-      wpad=$(( usable_cols - ${#wprefix} - AGENT_STATUS_TEXT_WIDTH - 1 ))
-      (( wpad < 0 )) && wpad=0
-      wrow="${wprefix}$(printf '%*s' "$wpad" "") $(agent_status_ansi_label_rjust "$wstatus")"
-    else
-      wrow="  ${widx}:${wname}"
-    fi
-    windows_by_session[$wsession]+="${wrow}"$'\t'"window"$'\t'"${wsession}:${widx}"$'\n'
-  done <<< "$windows"
-
-  # Sort sessions by activity (MRU first), then interleave each session's
-  # indented window rows right after it. Sort is not guaranteed stable on
-  # tied keys, so windows are attached post-sort rather than sorted alongside.
-  # Sessions with exactly one window skip this — their status is already
-  # folded onto the session row above, so a separate window row would just
-  # be a redundant duplicate of the exact same line.
-  local session_lines=""
-  local sorted_name row_text pad
-  while IFS= read -r sorted_name; do
-    [[ -z "$sorted_name" ]] && continue
-    display="${display_by_session[$sorted_name]}"
-    wcount="${window_count_by_session[$sorted_name]:-0}"
-    single_status=""
-    [[ "$wcount" -eq 1 ]] && single_status="${single_window_status_by_session[$sorted_name]:-}"
-    if [[ -n "$single_status" ]]; then
-      pad=$(( usable_cols - ${#display} - AGENT_STATUS_TEXT_WIDTH - 1 ))
-      (( pad < 0 )) && pad=0
-      row_text="${display}$(printf '%*s' "$pad" "") $(agent_status_ansi_label_rjust "$single_status")"
-    else
-      row_text="$display"
-    fi
-    # "session-parent" (not "session") when window sub-rows follow — lets
-    # the ctrl-n/ctrl-p binds below detect and skip over the header instead
-    # of landing the cursor on an unselectable parent row.
-    if [[ "$wcount" -eq 1 ]]; then
-      session_lines+=$'\x1b[1m'"${row_text}"$'\x1b[0m'$'\t'"session"$'\t'"${sorted_name}"$'\n'
-      continue
-    fi
-    session_lines+=$'\x1b[1m'"${row_text}"$'\x1b[0m'$'\t'"session-parent"$'\t'"${sorted_name}"$'\n'
-    session_lines+="${windows_by_session[$sorted_name]:-}"
-  done <<< "$(printf '%s' "$sortable_session_lines" | sort -t$'\t' -k1,1rn | cut -f2)"
-
-  # Pass 2: mixed alpha block — local repos, worktrees (without a session),
-  # dotfiles, gh_repos (dimmed).
+  # Pass 2: mixed alpha block — local repos, worktrees (without a session), dotfiles.
   local mixed_lines=""
 
   # Local repos.
@@ -308,60 +138,9 @@ build_entries() {
     mixed_lines+="${df_label}"$'\t'"dotfiles"$'\t'"${df_path}"$'\n'
   done <<< "$dotfiles"
 
-  # GH repos — dim via ANSI; skip any that are already local.
-  local gh_line
-  while IFS= read -r gh_line; do
-    [[ -z "$gh_line" ]] && continue
-    [[ -n "${local_repo_bare_by_orgrepo[$gh_line]:-}" ]] && continue
-    mixed_lines+=$'\x1b[2m'"${gh_line}"$'\x1b[0m'$'\t'"gh_repo"$'\t'"${gh_line}"$'\n'
-  done <<< "$gh_repos"
-
-  # Emit: sessions already sorted MRU with windows interleaved above; mixed
-  # alpha block (sort asc on label) after.
-  printf '%s' "$session_lines"
-  # NOTE: ANSI escapes sort before printable chars so gh_repos may cluster at
-  # the top of the mixed block. Acceptable — dim styling still distinguishes.
+  # Emit: sessions MRU (sort desc on activity), mixed alpha (sort asc on label).
+  printf '%s' "$session_lines" | sort -t$'\t' -k1,1rn | cut -f2-
   printf '%s' "$mixed_lines" | sort -t$'\t' -k1,1
-}
-
-refresh_gh_repos() {
-  # Rebuilds $SESSION_SWITCHER_REPO_CACHE from `gh` CLI.
-  # Silent on success. On failure, writes a hint to stderr and leaves any
-  # existing cache file in place.
-  command -v gh >/dev/null 2>&1 || {
-    echo "session_switcher: 'gh' not installed" >&2
-    return 1
-  }
-
-  mkdir -p "$SESSION_SWITCHER_CACHE_DIR"
-  local tmp
-  tmp=$(mktemp "$SESSION_SWITCHER_CACHE_DIR/gh_repos.XXXXXX") || return 1
-
-{{- if .isWork }}
-  # Work machine: query all orgs.
-  local orgs
-  orgs=$(gh api user/orgs --jq '.[].login' 2>/dev/null) || {
-    echo "session_switcher: 'gh api user/orgs' failed (not authenticated?)" >&2
-    rm -f "$tmp"
-    return 1
-  }
-
-  local org
-  while IFS= read -r org; do
-    [[ -z "$org" ]] && continue
-    gh repo list "$org" --limit 1000 --json nameWithOwner --jq '.[].nameWithOwner' 2>/dev/null >> "$tmp" || true
-  done <<< "$orgs"
-{{- else }}
-  # Personal machine: query only personal repos (no orgs).
-  gh repo list --limit 1000 --json nameWithOwner --jq '.[].nameWithOwner' 2>/dev/null >> "$tmp" || {
-    echo "session_switcher: 'gh repo list' failed (not authenticated?)" >&2
-    rm -f "$tmp"
-    return 1
-  }
-{{- end }}
-
-  sort -u "$tmp" -o "$tmp"
-  mv "$tmp" "$SESSION_SWITCHER_REPO_CACHE"
 }
 
 # Use the terminal's ANSI "red" slot for fzf match highlights — maps through
@@ -369,18 +148,13 @@ refresh_gh_repos() {
 SESSION_SWITCHER_FZF_COLOR='hl:yellow:bold,hl+:yellow:bold'
 
 kill_session() {
-  # Kills a tmux session or window (ctrl-x). Works on session, window, and
-  # worktree entries.
+  # Kills a tmux session (ctrl-x). Works on session and worktree entries.
   local kind="$1" payload="$2"
 
-  if [[ "$kind" == "session" || "$kind" == "session-parent" ]]; then
+  if [[ "$kind" == "session" ]]; then
     # Direct session entry — payload is session name.
     tmux kill-session -t "$payload" 2>/dev/null || true
     tmux display-message "killed session: $payload"
-  elif [[ "$kind" == "window" ]]; then
-    # Window entry — payload is "session:index" (see windows_by_session).
-    tmux kill-window -t "$payload" 2>/dev/null || true
-    tmux display-message "killed window: $payload"
   elif [[ "$kind" == "worktree" ]]; then
     # Worktree entry — derive session name from label (repo@branch).
     # Payload is the worktree path, but we need the session name.
@@ -405,7 +179,7 @@ delete_worktree() {
     return 0
   fi
 
-  if [[ "$kind" == "session" || "$kind" == "session-parent" ]]; then
+  if [[ "$kind" == "session" ]]; then
     # Resolve session path — if it's a worktree, kill session and proceed.
     local session_path
     session_path=$(tmux display-message -t "$payload" -p '#{session_path}' 2>/dev/null) || true
@@ -501,30 +275,15 @@ delete_worktree() {
 }
 
 branch_picker() {
-  local identifier="$1"
-  local bare org repo
+  # identifier is always a local bare repo path — repo entries only ever
+  # exist once their bare repo is already cloned under ~/repos.
+  local bare="$1"
+  local repo=${bare:t:r}
+  local org=${bare:h:t}
 
-  if [[ "$identifier" == /* ]]; then
-    # Local bare repo path.
-    bare="$identifier"
-    repo=${bare:t:r}
-    org=${bare:h:t}
-  else
-    # org/repo from a gh_repo entry.
-    org="${identifier%%/*}"
-    repo="${identifier##*/}"
-    bare="$HOME/repos/$org/$repo.git"
-  fi
-
-  # Fetch branches.
+  # Fetch branches from the bare repo's remote.
   local branches
-  if [[ -d "$bare" ]]; then
-    # Use the bare repo's remote for already-cloned repos.
-    branches=$(git -C "$bare" ls-remote --heads origin 2>/dev/null | sed 's|.*refs/heads/||')
-  else
-    # No bare yet: use gh.
-    branches=$(gh api "repos/$org/$repo/branches" --paginate --jq '.[].name' 2>/dev/null)
-  fi
+  branches=$(git -C "$bare" ls-remote --heads origin 2>/dev/null | sed 's|.*refs/heads/||')
 
   # Popup with branches.
   local selection retval query picked
@@ -553,21 +312,6 @@ branch_picker() {
     branch="$query"
   else
     return 0
-  fi
-
-  # Clone bare repo if missing. Shallow (--depth 1) — full-history clones of
-  # large repos stall mid-pack-transfer behind Netskope's TLS-inspecting
-  # proxy (confirmed: dp-protos hangs on full clone over both SSH and HTTPS,
-  # succeeds instantly with --depth 1). Individual branch fetches later in
-  # this function stay small enough to not trigger it.
-  if [[ ! -d "$bare" ]]; then
-    mkdir -p "$HOME/repos/$org"
-    if ! git clone --bare --depth 1 "git@github.com:$org/$repo.git" "$bare" 2>/dev/null; then
-      tmux display-message "clone failed: $org/$repo"
-      return 1
-    fi
-    git -C "$bare" config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
-    git -C "$bare" fetch origin 2>/dev/null
   fi
 
   # Create worktree if missing. Flatten slashes so branch "a/b" → dir "a-b".
@@ -630,24 +374,8 @@ branch_picker() {
 }
 
 main() {
-  # Bootstrap the GH repo cache on first use so the primary picker shows
-  # gh_repo entries immediately. Silent failure is OK — picker still works.
-  if [[ ! -f "$SESSION_SWITCHER_REPO_CACHE" ]] && command -v gh >/dev/null 2>&1; then
-    refresh_gh_repos 2>/dev/null || true
-  fi
-
   if [[ "${1:-}" == "--emit-entries" ]]; then
     build_entries
-    return 0
-  fi
-
-  if [[ "${1:-}" == "--refresh-repos" ]]; then
-    refresh_gh_repos
-    shift
-    # Allow "--refresh-repos --emit-entries" in one call (used by fzf reload).
-    if [[ "${1:-}" == "--emit-entries" ]]; then
-      build_entries
-    fi
     return 0
   fi
 
@@ -691,12 +419,8 @@ main() {
     --info=right \
     --no-scrollbar \
     --tiebreak=index \
-    --bind "ctrl-r:reload($ZSH_ARGZERO --refresh-repos --emit-entries 2>/dev/null)" \
     --bind "ctrl-x:execute-silent($ZSH_ARGZERO --kill-session {2} {3} {1})+abort" \
-    --bind "ctrl-d:execute-silent($ZSH_ARGZERO --delete-worktree {1} {2} {3})+abort" \
-    --bind "load:transform:[[ -z {q} && {2} == session-parent ]] && echo down || echo" \
-    --bind "ctrl-n:down+transform:[[ -z {q} && {2} == session-parent ]] && echo down || echo" \
-    --bind "ctrl-p:up+transform:[[ -z {q} && {2} == session-parent ]] && echo up || echo")
+    --bind "ctrl-d:execute-silent($ZSH_ARGZERO --delete-worktree {1} {2} {3})+abort")
   retval=$?
   set -e
 
@@ -708,7 +432,7 @@ main() {
     local _label kind payload
     IFS=$'\t' read -r _label kind payload <<< "$picked"
     case "$kind" in
-      session|session-parent|window)
+      session)
         tmux switch-client -t "$payload"
         ;;
       worktree)
@@ -719,7 +443,7 @@ main() {
         tmux new-session -d -s "dotfiles" -c "$payload" 2>/dev/null || true
         tmux switch-client -t "dotfiles"
         ;;
-      repo|gh_repo)
+      repo)
         # Run the branch picker in the current popup (nested display-popup is
         # unreliable). branch_picker handles the final switch-client itself.
         branch_picker "$payload"

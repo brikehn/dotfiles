@@ -58,7 +58,6 @@ Unified session + git worktree picker. Open with `prefix+f`.
 | Key      | Action                                               |
 | -------- | ---------------------------------------------------- |
 | `Enter`  | Switch to session/worktree or pick branch            |
-| `ctrl-r` | Refresh GitHub repo cache                            |
 | `ctrl-x` | Kill session (keeps worktree)                        |
 | `ctrl-d` | Delete worktree (smart: deletes branch if on remote) |
 
