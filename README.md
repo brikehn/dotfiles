@@ -51,6 +51,17 @@ dotf source-path ~/.zshrc
 
 **Neovim:** `<leader>df` opens Telescope fuzzy finder scoped to `$DOTFILES`.
 
+### Machine-local overrides
+
+This repo only holds config that's identical on every machine. Anything that differs per machine lives in an unmanaged local file that the shared config picks up if present:
+
+| Shared (this repo)          | Machine-local (never committed)          |
+| --------------------------- | ---------------------------------------- |
+| `~/.config/zsh/.zshrc`      | `~/.config/zsh/work`, `~/.config/zsh/secrets` |
+| `~/.config/mise/config.toml` | `~/.config/mise/config.work.toml` (loaded via `MISE_ENV=work`) |
+
+Claude Code config (`~/.claude`) is not managed here.
+
 ### tmux Session Switcher
 
 Unified session + git worktree picker. Open with `prefix+f`.
