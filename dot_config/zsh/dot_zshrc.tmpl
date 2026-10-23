@@ -6,6 +6,13 @@ bindkey -e # Use emacs-style bindings
 setopt MENU_COMPLETE # Enable menu completion
 setopt INTERACTIVE_COMMENTS # Allow comments in shell
 setopt HIST_IGNORE_ALL_DUPS # Remove duplicates in history
+setopt INC_APPEND_HISTORY # Write each command as it runs, so killed panes keep theirs
+setopt EXTENDED_HISTORY # Save timestamps
+
+# History (macOS /etc/zshrc only sets small defaults; Linux sets none)
+HISTFILE="${ZDOTDIR}/.zsh_history"
+HISTSIZE=100000
+SAVEHIST=100000
 
 # Completion configuration
 zstyle ':completion:*' menu select
