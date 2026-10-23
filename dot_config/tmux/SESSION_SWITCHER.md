@@ -45,9 +45,9 @@ The picker expects bare repos with worktrees:
 **Example:**
 ```
 ~/repos/
-  work/
-    widgets.git/           # bare repo (all git metadata)
-    widgets/               # worktrees
+  acme/
+    widgets.git/             # bare repo (all git metadata)
+    widgets/                 # worktrees
       main/
       feature-branch/
       bugfix-123/
@@ -56,8 +56,8 @@ The picker expects bare repos with worktrees:
 **Converting an existing clone to this structure:**
 
 ```bash
-cd ~/repos/work
-git clone --bare git@github.com:work/widgets.git
+cd ~/repos/acme
+git clone --bare git@github.com:acme/widgets.git
 cd widgets.git
 git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
 git fetch origin

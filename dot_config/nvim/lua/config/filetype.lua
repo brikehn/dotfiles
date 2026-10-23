@@ -16,7 +16,6 @@ vim.filetype.add({
 		[".*dot_config/git/ignore"] = "gitignore",
 		-- live paths
 		[".*/%.config/git/config"] = "gitconfig",
-		[".*/%.config/git/work"] = "gitconfig",
 		[".*/%.config/git/ignore"] = "gitignore",
 		[".*/%.config/zsh/work"] = "zsh",
 		[".*/%.config/zsh/secrets"] = "zsh",
