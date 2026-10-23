@@ -1,6 +1,7 @@
 # Repo metadata (not applied to ~)
 README.md
 SETUP.md
+scripts/
 
 # Machine-local / generated files
 .config/zsh/.zcompdump

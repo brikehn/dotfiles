@@ -1,9 +1,9 @@
 #!/bin/sh
 # Bootstrap a new machine before running chezmoi.
-# Usage: sh -c "$(curl -fsLS https://raw.githubusercontent.com/brikehn/dotfiles/main/bootstrap.sh)"
+# Usage: sh -c "$(curl -fsLS https://raw.githubusercontent.com/brikehn/dotfiles/main/scripts/bootstrap.sh)"
 set -e
 
-SELF_URL="https://raw.githubusercontent.com/brikehn/dotfiles/main/bootstrap.sh"
+SELF_URL="https://raw.githubusercontent.com/brikehn/dotfiles/main/scripts/bootstrap.sh"
 
 # --- Linux: sudo setup ---
 # On Debian server installs, sudo may not be pre-configured.
